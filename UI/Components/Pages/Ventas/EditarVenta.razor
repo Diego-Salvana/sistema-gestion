@@ -1,0 +1,36 @@
+﻿@page "/ventas/{id:int}/editar"
+@inject VentaBussiness VentaBussiness
+
+<PageTitle>Ventas</PageTitle>
+
+<div class="container" style="max-width: 720px">
+    <h3 class="mb-3">Ventas</h3>
+
+    @if (venta is null)
+    {
+        <h5 class="pt-5">Venta no encontrada</h5>
+    }
+    else
+    {
+        <VentaForm venta="venta"></VentaForm>
+    }
+</div>
+
+@code {
+    private Venta? venta;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override void OnInitialized ()
+    {
+        try
+        {
+            venta = VentaBussiness.ObtenerVenta(Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

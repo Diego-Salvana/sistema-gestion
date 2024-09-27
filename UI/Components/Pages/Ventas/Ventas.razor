@@ -1,0 +1,79 @@
+﻿@page "/ventas"
+@rendermode InteractiveServer
+@inject VentaBussiness VentaBussiness
+
+<PageTitle>Ventas</PageTitle>
+
+<div class="container">
+    <h1 class="pb-3">Ventas</h1>
+
+    <div class="row">
+        <div class="col-6">
+            <a href="/ventas/nuevo">
+                <button type="button" class="btn btn-success">Crear Venta</button>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Id</th>
+                    <th>Comentarios</th>
+                    <th>IdUsuario</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Venta venta in ventas)
+                {
+                    <tr>
+                        <td>@venta.Id</td>
+                        <td>
+                            @foreach (string comentario in @venta.Comentarios)
+                            {
+                                <p>@comentario</p>
+                            }
+                        </td>
+                        <td>@venta.IdUsuario</td>
+                        <td class="text-end">
+                            <a href="/ventas/@venta.Id/editar" class="pe-1">
+                                <button type="button" class="btn btn-info">Editar</button>
+                            </a>
+                            <button type="button"
+                                    class="btn btn-danger"
+                                    @onclick="() => RemoverVenta(venta.Id)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private List<Venta> ventas = [];
+
+    protected override void OnInitialized ()
+    {
+        ventas = VentaBussiness.ListarVentas();
+    }
+
+    private void RemoverVenta (int id)
+    {
+        try
+        {
+            VentaBussiness.EliminarVenta(id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return;
+        }
+
+        Venta? ventaAEliminar = ventas.FirstOrDefault(v => v.Id == id);
+        if (ventaAEliminar is not null) ventas.Remove(ventaAEliminar);
+    }
+}

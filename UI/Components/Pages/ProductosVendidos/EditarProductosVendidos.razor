@@ -1,0 +1,36 @@
+﻿@page "/productos-vendidos/{id:int}/editar"
+@inject ProductoVendidoBussiness ProductoVendidoBussiness
+
+<PageTitle>Productos Vendidos</PageTitle>
+
+<div class="container" style="max-width: 720px">
+    <h3 class="mb-3">Editar Producto Vendido</h3>
+
+    @if (productoVendido is null)
+    {
+        <h5 class="pt-5">ProductoVendido no encontrado</h5>
+    }
+    else
+    {
+        <ProductoVendidoForm productoVendido="productoVendido"></ProductoVendidoForm>
+    }
+</div>
+
+@code {
+    private ProductoVendido? productoVendido;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override void OnInitialized ()
+    {
+        try
+        {
+            productoVendido = ProductoVendidoBussiness.ObtenerProductoVendido(Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

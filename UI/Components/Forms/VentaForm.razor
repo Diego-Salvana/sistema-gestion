@@ -1,0 +1,53 @@
+﻿@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+@inject VentaBussiness VentaBussiness
+
+<EditForm Model="venta" OnValidSubmit="GuardarVenta" FormName="venta-form">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+
+    <div class="form-group pb-2">
+        <label for="comentario">Nuevo Comentario</label>
+        <InputTextArea type="text" class="form-control" id="comentario"
+                       @bind-Value="comentario" />
+    </div>
+    <div class="form-group pb-2">
+        <label for="id-usuario">IdUsuario</label>
+        <InputNumber type="number" class="form-control" id="id-usuario"
+                     @bind-Value="venta.IdUsuario" />
+        <ValidationMessage For="() => venta.IdUsuario" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-1">Guardar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Venta venta { get; set; } = null!;
+
+    private int idUsuarioActual;
+
+    private string comentario = string.Empty;
+
+    protected override void OnInitialized ()
+    {
+        idUsuarioActual = venta.IdUsuario;
+    }
+
+    private void GuardarVenta ()
+    {
+        if (comentario.Trim().Length > 0) venta.AgregarComentario(comentario);
+
+        try
+        {
+            if (venta.Id == 0) VentaBussiness.CrearVenta(venta);
+            else VentaBussiness.ModificarVenta(venta.Id, venta);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return;
+        }
+
+        NavigationManager.NavigateTo("/ventas");
+    }
+}

@@ -1,0 +1,61 @@
+﻿@inject NavigationManager NavigationManager
+@inject ProductoBussiness ProductoBussiness
+@rendermode InteractiveServer
+
+<EditForm Model="producto" OnValidSubmit="GuardarProducto" FormName="producto-form">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+
+    <div class="form-group pb-2">
+        <label for="descripcion">Descripcion</label>
+        <InputText type="text" class="form-control" id="descripcion"
+                   @bind-Value="producto.Descripcion" />
+        <ValidationMessage For="() => producto.Descripcion" />
+    </div>
+    <div class="form-group pb-2">
+        <label for="costo">Costo</label>
+        <InputNumber type="number" class="form-control" id="costo"
+                     @bind-Value="producto.Costo" />
+        <ValidationMessage For="() => producto.Costo" />
+    </div>
+    <div class="form-group pb-2">
+        <label for="precio-venta">Precio de Venta</label>
+        <InputNumber type="number" class="form-control" id="precio-venta"
+                     @bind-Value="producto.PrecioVenta" />
+        <ValidationMessage For="() => producto.PrecioVenta" />
+    </div>
+    <div class="form-group pb-2">
+        <label for="stock">Stock</label>
+        <InputNumber type="number" class="form-control" id="stock"
+                     @bind-Value="producto.Stock" />
+        <ValidationMessage For="() => producto.Stock" />
+    </div>
+    <div class="form-group pb-2">
+        <label for="id-usuario">IdUsuario</label>
+        <InputNumber type="number" class="form-control" id="id-usuario"
+                     @bind-Value="producto.IdUsuario" />
+        <ValidationMessage For="() => producto.IdUsuario" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-1">Guardar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Producto producto { get; set; } = null!;
+
+    private void GuardarProducto ()
+    {
+        try
+        {
+            if (producto.Id == 0) ProductoBussiness.CrearProducto(producto);
+            else ProductoBussiness.ModificarProducto(producto.Id, producto);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return;
+        }
+
+        NavigationManager.NavigateTo("/");
+    }
+}

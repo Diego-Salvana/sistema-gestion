@@ -1,0 +1,49 @@
+﻿@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+@inject ProductoVendidoBussiness ProductoVendidoBussiness
+
+<EditForm Model="productoVendido" OnValidSubmit="GuardarProductoVendido" FormName="vendido-form">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+
+    <div class="form-group pb-2">
+        <label for="id-producto">IdProducto</label>
+        <InputNumber type="number" class="form-control" id="id-producto"
+                     @bind-Value="productoVendido.IdProducto" />
+        <ValidationMessage For="() => productoVendido.IdProducto" />
+    </div>
+    <div class="form-group pb-2">
+        <label for="stock">Stock</label>
+        <InputNumber type="number" class="form-control" id="stock"
+                     @bind-Value="productoVendido.Stock" />
+        <ValidationMessage For="() => productoVendido.Stock" />
+    </div>
+    <div class="form-group pb-2">
+        <label for="id-venta">IdVenta</label>
+        <InputNumber type="number" class="form-control" id="id-venta"
+                     @bind-Value="productoVendido.IdVenta" />
+        <ValidationMessage For="() => productoVendido.IdVenta" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-1">Guardar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public ProductoVendido productoVendido { get; set; } = null!;
+
+    private void GuardarProductoVendido ()
+    {
+        try
+        {
+            if (productoVendido.Id == 0) ProductoVendidoBussiness.CrearProductoVendido(productoVendido);
+            else ProductoVendidoBussiness.ModificarProductoVendido(productoVendido.Id, productoVendido);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return;
+        }
+
+        NavigationManager.NavigateTo("/productos-vendidos");
+    }
+}

@@ -1,0 +1,13 @@
+﻿@page "/ventas/nuevo"
+
+<PageTitle>Ventas</PageTitle>
+
+<div class="container" style="max-width: 720px">
+    <h3 class="mb-3">Crear Venta</h3>
+
+    <VentaForm venta="nuevaVenta"></VentaForm>
+</div>
+
+@code {
+    private Venta nuevaVenta = new();
+}

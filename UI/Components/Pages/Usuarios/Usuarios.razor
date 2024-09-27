@@ -1,0 +1,78 @@
+﻿@page "/usuarios"
+@rendermode InteractiveServer
+@inject UsuarioBussiness UsuarioBussiness
+
+<PageTitle>Usuarios</PageTitle>
+
+<div class="container">
+    <h1 class="pb-3">Usuarios</h1>
+
+    <div class="row">
+        <div class="col-6">
+            <a href="/usuarios/nuevo">
+                <button type="button" class="btn btn-success">Crear usuario</button>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre </th>
+                    <th>Apellido </th>
+                    <th>NombreUsuario </th>
+                    <th>Email </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Usuario usuario in usuarios)
+                {
+                    <tr>
+                        <td>@usuario.Id</td>
+                        <td>@usuario.Nombre </td>
+                        <td>@usuario.Apellido </td>
+                        <td>@usuario.NombreUsuario </td>
+                        <td>@usuario.Mail </td>
+                        <td class="text-end">
+                            <a href="/usuarios/@usuario.Id/editar" class="pe-1">
+                                <button type="button" class="btn btn-info">Editar</button>
+                            </a>
+                            <button type="button"
+                                    class="btn btn-danger"
+                                    @onclick="() => RemoverUsuario(usuario.Id)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private List<Usuario> usuarios = [];
+
+    protected override void OnInitialized ()
+    {
+        usuarios = UsuarioBussiness.ListarUsuarios();
+    }
+
+    private void RemoverUsuario (int id)
+    {
+        try
+        {
+            UsuarioBussiness.EliminarUsuario(id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return;
+        }
+
+        Usuario? usuarioAEliminar = usuarios.FirstOrDefault(u => u.Id == id);
+        if (usuarioAEliminar is not null) usuarios.Remove(usuarioAEliminar);
+    }
+}

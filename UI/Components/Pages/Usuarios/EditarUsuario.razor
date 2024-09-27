@@ -1,0 +1,36 @@
+﻿@page "/usuarios/{id:int}/editar"
+@inject UsuarioBussiness UsuarioBussiness
+
+<PageTitle>Usuarios</PageTitle>
+
+<div class="container" style="max-width: 720px">
+    <h3 class="mb-3">Editar Usuario</h3>
+
+    @if (usuario is null)
+    {
+        <h5 class="pt-5">Usuario no encontrado</h5>
+    }
+    else
+    {
+        <UsuarioForm usuario="usuario"></UsuarioForm>
+    }
+</div>
+
+@code {
+    private Usuario? usuario;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override void OnInitialized ()
+    {
+        try
+        {
+            usuario = UsuarioBussiness.ObtenerUsuario(Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

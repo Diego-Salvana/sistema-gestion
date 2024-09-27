@@ -1,0 +1,13 @@
+﻿@page "/productos/nuevo"
+
+<PageTitle>Productos</PageTitle>
+
+<div class="container" style="max-width: 720px">
+    <h3 class="mb-3">Crear Producto</h3>
+
+    <ProductoForm producto="nuevoProducto"></ProductoForm>
+</div>
+
+@code {
+    private Producto nuevoProducto = new();
+}

@@ -1,0 +1,80 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@inject ProductoBussiness ProductoBussiness
+
+<PageTitle>Productos</PageTitle>
+
+<div class="container">
+    <h1 class="pb-3">Productos</h1>
+
+    <div class="row">
+        <div class="col-6">
+            <a href="/productos/nuevo">
+                <button type="button" class="btn btn-success">Crear producto</button>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Id</th>
+                    <th>Descripcion</th>
+                    <th>Costo</th>
+                    <th>PrecioVenta</th>
+                    <th>Stock</th>
+                    <th>IdUsuario </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Producto producto in productos)
+                {
+                    <tr>
+                        <td>@producto.Id</td>
+                        <td>@producto.Descripcion</td>
+                        <td>@producto.Costo</td>
+                        <td>@producto.PrecioVenta</td>
+                        <td>@producto.Stock</td>
+                        <td>@producto.IdUsuario</td>
+                        <td class="text-end">
+                            <a href="/Productos/@producto.Id/editar" class="pe-1">
+                                <button type="button" class="btn btn-info">Editar</button>
+                            </a>
+                            <button type="button"
+                                    class="btn btn-danger"
+                                    @onclick="() => RemoverProducto(producto.Id)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private List<Producto> productos = [];
+
+    protected override void OnInitialized ()
+    {
+        productos = ProductoBussiness.ListarProductos();
+    }
+
+    private void RemoverProducto (int id)
+    {
+        try
+        {
+            ProductoBussiness.EliminarProducto(id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return;
+        }
+
+        Producto? productoAEliminar = productos.FirstOrDefault(p => p.Id == id);
+        if (productoAEliminar is not null) productos.Remove(productoAEliminar);
+    }
+}

@@ -1,0 +1,56 @@
+﻿@inject NavigationManager NavigationManager
+@inject UsuarioBussiness UsuarioBussiness
+@rendermode InteractiveServer
+
+<EditForm Model="usuario" OnValidSubmit="GuardarUsuario" FormName="usuario-form">
+    <DataAnnotationsValidator />
+
+    <div class="form-group pb-2">
+        <label for="nombre">Nombre</label>
+        <InputText type="text" class="form-control" id="nombre" @bind-Value="usuario.Nombre" />
+        <ValidationMessage For="() => usuario.Nombre" />
+    </div>
+    <div class="form-group pb-2">
+        <label for="apellido">Apellido</label>
+        <InputText type="text" class="form-control" id="apellido" @bind-Value="usuario.Apellido" />
+        <ValidationMessage For="() => usuario.Apellido" />
+    </div>
+    <div class="form-group pb-2">
+        <label for="nombre-usuario">Nombre Usuario</label>
+        <InputText type="text" class="form-control" id="nombre-usuario" @bind-Value="usuario.NombreUsuario" />
+        <ValidationMessage For="() => usuario.NombreUsuario" />
+    </div>
+    <div class="form-group pb-2">
+        <label for="email">Email</label>
+        <InputText type="email" class="form-control" id="email" @bind-Value="usuario.Mail" />
+        <ValidationMessage For="() => usuario.Mail" />
+    </div>
+    <div class="form-group pb-2">
+        <label for="password">Contraseña</label>
+        <InputText type="password" class="form-control" id="password" @bind-Value="usuario.Contraseña" />
+        <ValidationMessage For="() => usuario.Contraseña" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-1">Guardar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Usuario usuario { get; set; } = null!;
+
+    private void GuardarUsuario ()
+    {
+        try
+        {
+            if (usuario.Id == 0) UsuarioBussiness.CrearUsuario(usuario);
+            else UsuarioBussiness.ModificarUsuario(usuario.Id, usuario);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return;
+        }
+
+        NavigationManager.NavigateTo("/usuarios");
+    }
+}

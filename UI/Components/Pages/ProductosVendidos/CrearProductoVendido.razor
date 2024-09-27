@@ -1,0 +1,13 @@
+﻿@page "/productos-vendidos/nuevo"
+
+<PageTitle>Productos Vendidos</PageTitle>
+
+<div class="container" style="max-width: 720px">
+    <h3 class="mb-3">Crear Producto Vendido</h3>
+
+    <ProductoVendidoForm productoVendido="nuevoProductoVendido"></ProductoVendidoForm>
+</div>
+
+@code {
+    private ProductoVendido nuevoProductoVendido = new();
+}

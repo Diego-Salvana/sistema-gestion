@@ -1,0 +1,76 @@
+﻿@page "/productos-vendidos"
+@rendermode InteractiveServer
+@inject ProductoVendidoBussiness ProductoVendidoBussiness
+
+<PageTitle>Productos Vendidos</PageTitle>
+
+<div class="container">
+    <h1 class="pb-3">Productos Vendidos</h1>
+
+    <div class="row">
+        <div class="col-6">
+            <a href="/productos-vendidos/nuevo">
+                <button type="button" class="btn btn-success">Crear ProductoVendido</button>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Id</th>
+                    <th>IdProducto</th>
+                    <th>Stock</th>
+                    <th>IdVenta</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ProductoVendido productoVendido in productosVendidos)
+                {
+                    <tr>
+                        <td>@productoVendido.Id</td>
+                        <td>@productoVendido.IdProducto</td>
+                        <td>@productoVendido.Stock</td>
+                        <td>@productoVendido.IdVenta</td>
+                        <td class="text-end">
+                            <a href="/productos-vendidos/@productoVendido.Id/editar" class="pe-1">
+                                <button type="button" class="btn btn-info">Editar</button>
+                            </a>
+                            <button type="button"
+                                    class="btn btn-danger"
+                                    @onclick="() => RemoverProductoVendido(productoVendido.Id)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private List<ProductoVendido> productosVendidos = [];
+
+    protected override void OnInitialized ()
+    {
+        productosVendidos = ProductoVendidoBussiness.ListarProductosVendidos();
+    }
+
+    private void RemoverProductoVendido (int id)
+    {
+        try
+        {
+            ProductoVendidoBussiness.EliminarProductoVendido(id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return;
+        }
+
+        ProductoVendido? productoVendidoAEliminar = productosVendidos.FirstOrDefault(p => p.Id == id);
+        if (productoVendidoAEliminar is not null) productosVendidos.Remove(productoVendidoAEliminar);
+    }
+}
