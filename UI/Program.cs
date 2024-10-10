@@ -1,5 +1,5 @@
+using UI.ClientServices;
 using UI.Components;
-using Bussiness;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +7,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.ConfigureBussinessLayer();
+builder.Services.AddTransient<ProductosService>();
+builder.Services.AddTransient<UsuariosService>();
+builder.Services.AddTransient<ProductosVendidosService>();
+builder.Services.AddTransient<VentasService>();
+
+builder.Services.AddHttpClient<ProductosService>(
+    client => client.BaseAddress = new Uri("http://localhost:5292/api/Productos/")
+);
+builder.Services.AddHttpClient<UsuariosService>(
+    client => client.BaseAddress = new Uri("http://localhost:5292/api/Usuarios/")
+);
+builder.Services.AddHttpClient<ProductosVendidosService>(
+    client => client.BaseAddress = new Uri("http://localhost:5292/api/ProductosVendidos/")
+);
+builder.Services.AddHttpClient<VentasService>(
+    client => client.BaseAddress = new Uri("http://localhost:5292/api/Ventas/")
+);
 
 var app = builder.Build();
 

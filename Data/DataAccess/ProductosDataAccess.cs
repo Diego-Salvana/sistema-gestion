@@ -1,5 +1,6 @@
 ﻿using Data.Context;
 using Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data.DataAccess;
 public class ProductosDataAccess
@@ -11,45 +12,51 @@ public class ProductosDataAccess
         _sistemaGestionContext = context;
     }
 
-    public List<Producto> ListarProductos ()
+    public async Task<List<Producto>> ListarProductosAsync ()
     {
-        return _sistemaGestionContext.Productos.ToList();
+        return await _sistemaGestionContext.Productos
+                            .Include(p => p.Usuario)
+                            .ToListAsync();
     }
 
-    public Producto ObtenerProducto (int id)
+    public async Task<Producto> ObtenerProductoAsync (int id)
     {
-        Producto? producto = _sistemaGestionContext.Productos.FirstOrDefault(p => p.Id == id);
+        Producto? producto = await _sistemaGestionContext.Productos
+                                        .Include(p => p.Usuario)
+                                        .FirstOrDefaultAsync(p => p.Id == id);
 
         if (producto is null)
         {
-            throw new ArgumentException("No existe el Producto");
+            throw new ArgumentException($"No existe el producto con id {id}");
         }
 
         return producto;
     }
 
-    public void CrearProducto (Producto producto)
+    public async Task CrearProductoAsync (Producto producto)
     {
-        _sistemaGestionContext.Productos.Add(producto);
-        _sistemaGestionContext.SaveChanges();
+        await _sistemaGestionContext.Productos.AddAsync(producto);
+        await _sistemaGestionContext.SaveChangesAsync();
     }
 
-    public void ModificarProducto (int id, Producto productoAcutalizado)
+    public async Task ModificarProductoAsync (int id, Producto productoActualizado)
     {
-        Producto producto = ObtenerProducto(id);
+        Producto producto = await ObtenerProductoAsync(id);
 
-        producto.Descripcion = productoAcutalizado.Descripcion;
-        producto.Costo = productoAcutalizado.Costo;
-        producto.PrecioVenta = productoAcutalizado.PrecioVenta;
-        producto.Stock = productoAcutalizado.Stock;
-        producto.IdUsuario = productoAcutalizado.IdUsuario;
+        producto.Descripcion = productoActualizado.Descripcion;
+        producto.Costo = productoActualizado.Costo;
+        producto.PrecioVenta = productoActualizado.PrecioVenta;
+        producto.Stock = productoActualizado.Stock;
+        producto.Usuario = productoActualizado.Usuario;
 
-        _sistemaGestionContext.SaveChanges();
+        await _sistemaGestionContext.SaveChangesAsync();
     }
 
-    public void EliminarProducto (int id)
+    public async Task EliminarProductoAsync (int id)
     {
-        _sistemaGestionContext.Productos.Remove(ObtenerProducto(id));
-        _sistemaGestionContext.SaveChanges();
+        Producto producto = await ObtenerProductoAsync(id);
+
+        _sistemaGestionContext.Productos.Remove(producto);
+        await _sistemaGestionContext.SaveChangesAsync();
     }
 }

@@ -1,6 +1,7 @@
 ﻿@page "/"
 @rendermode InteractiveServer
-@inject ProductoBussiness ProductoBussiness
+@inject ProductosService ProductosService
+@inject IJSRuntime JS
 
 <PageTitle>Productos</PageTitle>
 
@@ -36,14 +37,14 @@
                         <td>@producto.Costo</td>
                         <td>@producto.PrecioVenta</td>
                         <td>@producto.Stock</td>
-                        <td>@producto.IdUsuario</td>
+                        <td>@producto.Usuario</td>
                         <td class="text-end">
                             <a href="/Productos/@producto.Id/editar" class="pe-1">
                                 <button type="button" class="btn btn-info">Editar</button>
                             </a>
                             <button type="button"
                                     class="btn btn-danger"
-                                    @onclick="() => RemoverProducto(producto.Id)">
+                                    @onclick="() => RemoverProductoAsync(producto.Id)">
                                 Eliminar
                             </button>
                         </td>
@@ -57,20 +58,20 @@
 @code {
     private List<Producto> productos = [];
 
-    protected override void OnInitialized ()
+    protected override async Task OnInitializedAsync ()
     {
-        productos = ProductoBussiness.ListarProductos();
+        productos = await ProductosService.ListarProductosAsync() ?? [];
     }
 
-    private void RemoverProducto (int id)
+    private async Task RemoverProductoAsync (int id)
     {
         try
         {
-            ProductoBussiness.EliminarProducto(id);
+            await ProductosService.EliminarProductoAsync(id);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine(ex.Message);
+            await JS.InvokeVoidAsync("logErrorConsole", "No se pudo eliminar el producto");
             return;
         }
 

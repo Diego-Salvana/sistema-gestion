@@ -1,5 +1,6 @@
 ﻿using Data.Context;
 using Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data.DataAccess;
 public class VentasDataAccess
@@ -11,42 +12,45 @@ public class VentasDataAccess
         _sistemaGestionContext = context;
     }
 
-    public List<Venta> ListarVentas ()
+    public async Task<List<Venta>> ListarVentasAsync ()
     {
-        return _sistemaGestionContext.Ventas.ToList();
+        return await _sistemaGestionContext.Ventas.ToListAsync();
     }
 
-    public Venta ObtenerVenta (int id)
+    public async Task<Venta> ObtenerVentaAsync (int id)
     {
-        Venta? venta = _sistemaGestionContext.Ventas.FirstOrDefault(v => v.Id == id);
+        Venta? venta = await _sistemaGestionContext.Ventas.FirstOrDefaultAsync(v => v.Id == id);
 
         if (venta is null)
         {
-            throw new ArgumentException("No existe la Venta");
+            throw new ArgumentException("No existe la venta");
         }
 
         return venta;
     }
 
-    public void CrearVenta (Venta venta)
+    public async Task<Venta> CrearVentaAsync (Venta venta)
     {
-        _sistemaGestionContext.Ventas.Add(venta);
-        _sistemaGestionContext.SaveChanges();
+        await _sistemaGestionContext.Ventas.AddAsync(venta);
+        await _sistemaGestionContext.SaveChangesAsync();
+
+        return venta;
     }
 
-    public void ModificarVenta (int id, Venta ventaAcutalizada)
+    public async Task ModificarVentaAsync (int id, Venta ventaActualizada)
     {
-        Venta venta = ObtenerVenta(id);
+        Venta venta = await ObtenerVentaAsync(id);
 
-        venta.IdUsuario = ventaAcutalizada.IdUsuario;
-        venta.Comentarios = ventaAcutalizada.Comentarios;
+        venta.Usuario = ventaActualizada.Usuario;
+        venta.Comentarios = ventaActualizada.Comentarios;
+        venta.Productos = ventaActualizada.Productos;
 
-        _sistemaGestionContext.SaveChanges();
+        await _sistemaGestionContext.SaveChangesAsync();
     }
 
-    public void EliminarVenta (int id)
+    public async Task EliminarVentaAsync (int id)
     {
-        _sistemaGestionContext.Ventas.Remove(ObtenerVenta(id));
-        _sistemaGestionContext.SaveChanges();
+        _sistemaGestionContext.Ventas.Remove(await ObtenerVentaAsync(id));
+        await _sistemaGestionContext.SaveChangesAsync();
     }
 }

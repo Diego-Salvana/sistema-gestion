@@ -1,5 +1,6 @@
 ﻿@page "/usuarios/{id:int}/editar"
-@inject UsuarioBussiness UsuarioBussiness
+@inject UsuariosService UsuariosService
+@inject IJSRuntime JS
 
 <PageTitle>Usuarios</PageTitle>
 
@@ -22,15 +23,8 @@
     [Parameter]
     public int Id { get; set; }
 
-    protected override void OnInitialized ()
+    protected override async Task OnInitializedAsync ()
     {
-        try
-        {
-            usuario = UsuarioBussiness.ObtenerUsuario(Id);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
+        usuario = await UsuariosService.ObtenerUsuarioAsync(Id);
     }
 }

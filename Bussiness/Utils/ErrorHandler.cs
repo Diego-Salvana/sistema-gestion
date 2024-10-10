@@ -1,14 +1,15 @@
 ﻿namespace Bussiness.Utils;
-public class ErrorHandler
+public static class ErrorHandler
 {
     public static Exception Error (Exception ex, string message)
     {
+        Console.WriteLine(ex);
+
         if (ex is ArgumentException)
         {
-            return new Exception(ex.Message);
-        }
+            return new ArgumentException(ex.Message);
+        } 
 
-        Console.WriteLine(ex);
         return new Exception(message);
     }
 }

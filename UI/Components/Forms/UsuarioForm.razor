@@ -1,8 +1,9 @@
 ﻿@inject NavigationManager NavigationManager
-@inject UsuarioBussiness UsuarioBussiness
+@inject UsuariosService UsuariosService
+@inject IJSRuntime JS
 @rendermode InteractiveServer
 
-<EditForm Model="usuario" OnValidSubmit="GuardarUsuario" FormName="usuario-form">
+<EditForm Model="usuario" OnValidSubmit="GuardarUsuarioAsync" FormName="usuario-form">
     <DataAnnotationsValidator />
 
     <div class="form-group pb-2">
@@ -38,16 +39,16 @@
     [Parameter]
     public Usuario usuario { get; set; } = null!;
 
-    private void GuardarUsuario ()
+    private async Task GuardarUsuarioAsync ()
     {
         try
         {
-            if (usuario.Id == 0) UsuarioBussiness.CrearUsuario(usuario);
-            else UsuarioBussiness.ModificarUsuario(usuario.Id, usuario);
+            if (usuario.Id == 0) await UsuariosService.CrearUsuarioAsync(usuario);
+            else await UsuariosService.ModificarUsuarioAsync(usuario.Id, usuario);
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            await JS.InvokeVoidAsync("logErrorConsole", "No se pudo modificar/crear el usuario");
             return;
         }
 

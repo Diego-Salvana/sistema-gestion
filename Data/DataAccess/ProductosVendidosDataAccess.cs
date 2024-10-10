@@ -1,5 +1,6 @@
 ﻿using Data.Context;
 using Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data.DataAccess;
 public class ProductosVendidosDataAccess
@@ -11,44 +12,55 @@ public class ProductosVendidosDataAccess
         _sistemaGestionContext = context;
     }
 
-    public List<ProductoVendido> ListarProductosVendidos ()
+    public async Task<List<ProductoVendido>> ListarProductosVendidosAsync ()
     {
-        return _sistemaGestionContext.ProductosVendidos.ToList();
+        return await _sistemaGestionContext.ProductosVendidos.ToListAsync();
     }
 
-    public ProductoVendido ObtenerProductoVendido (int id)
+    public async Task<ProductoVendido> ObtenerProductoVendidoAsync (int id)
     {
         ProductoVendido? productoVendido =
-            _sistemaGestionContext.ProductosVendidos.FirstOrDefault(p => p.Id == id);
+            await _sistemaGestionContext.ProductosVendidos.FirstOrDefaultAsync(p => p.Id == id);
 
         if (productoVendido is null)
         {
-            throw new ArgumentException("No existe el ProductoVendido");
+            throw new ArgumentException("No existe el producto vendido");
         }
 
         return productoVendido;
     }
 
-    public void CrearProductoVendido (ProductoVendido productoVendido)
+    public async Task<ProductoVendido?> ProductoVendidoByProductoId (int IdProducto)
     {
-        _sistemaGestionContext.ProductosVendidos.Add(productoVendido);
-        _sistemaGestionContext.SaveChanges();
+        ProductoVendido? producto = await _sistemaGestionContext
+                                    .ProductosVendidos
+                                    .FirstOrDefaultAsync(p => p.Producto.Id == IdProducto);
+
+        return producto;
     }
 
-    public void ModificarProductoVendido (int id, ProductoVendido productoAcutalizado)
+    public async Task CrearProductoVendidoAsync (ProductoVendido productoVendido)
     {
-        ProductoVendido productoVendido = ObtenerProductoVendido(id);
+        await _sistemaGestionContext.ProductosVendidos.AddAsync(productoVendido);
+        await _sistemaGestionContext.SaveChangesAsync();
+    }
 
-        productoVendido.IdProducto = productoAcutalizado.IdProducto;
+    public async Task ModificarProductoVendidoAsync (int id, ProductoVendido productoAcutalizado)
+    {
+        ProductoVendido productoVendido = await ObtenerProductoVendidoAsync(id);
+
+        productoVendido.Producto = productoAcutalizado.Producto;
         productoVendido.Stock = productoAcutalizado.Stock;
-        productoVendido.IdVenta = productoAcutalizado.IdVenta;
+        productoVendido.Ventas = productoAcutalizado.Ventas;
 
-        _sistemaGestionContext.SaveChanges();
+        await _sistemaGestionContext.SaveChangesAsync();
     }
 
-    public void EliminarProductoVendido (int id)
+    public async Task EliminarProductoVendidoAsync (int id)
     {
-        _sistemaGestionContext.ProductosVendidos.Remove(ObtenerProductoVendido(id));
-        _sistemaGestionContext.SaveChanges();
+        ProductoVendido productoVendido = await ObtenerProductoVendidoAsync(id);
+
+        _sistemaGestionContext.ProductosVendidos.Remove(productoVendido);
+        await _sistemaGestionContext.SaveChangesAsync();
     }
 }

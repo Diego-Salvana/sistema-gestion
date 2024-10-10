@@ -1,15 +1,16 @@
 ﻿@inject NavigationManager NavigationManager
+@inject ProductosVendidosService ProductosVendidosService
+@inject IJSRuntime JS
 @rendermode InteractiveServer
-@inject ProductoVendidoBussiness ProductoVendidoBussiness
 
-<EditForm Model="productoVendido" OnValidSubmit="GuardarProductoVendido" FormName="vendido-form">
+<EditForm Model="productoVendido" OnValidSubmit="GuardarProductoVendidoAsync" FormName="vendido-form">
     <DataAnnotationsValidator></DataAnnotationsValidator>
 
     <div class="form-group pb-2">
         <label for="id-producto">IdProducto</label>
         <InputNumber type="number" class="form-control" id="id-producto"
-                     @bind-Value="productoVendido.IdProducto" />
-        <ValidationMessage For="() => productoVendido.IdProducto" />
+                     @bind-Value="productoVendido.Producto" />
+        <ValidationMessage For="() => productoVendido.Producto" />
     </div>
     <div class="form-group pb-2">
         <label for="stock">Stock</label>
@@ -20,8 +21,8 @@
     <div class="form-group pb-2">
         <label for="id-venta">IdVenta</label>
         <InputNumber type="number" class="form-control" id="id-venta"
-                     @bind-Value="productoVendido.IdVenta" />
-        <ValidationMessage For="() => productoVendido.IdVenta" />
+                     @bind-Value="productoVendido.Ventas" />
+        <ValidationMessage For="() => productoVendido.Ventas" />
     </div>
 
     <button type="submit" class="btn btn-primary mt-1">Guardar</button>
@@ -31,16 +32,19 @@
     [Parameter]
     public ProductoVendido productoVendido { get; set; } = null!;
 
-    private void GuardarProductoVendido ()
+    private async Task GuardarProductoVendidoAsync ()
     {
         try
         {
-            if (productoVendido.Id == 0) ProductoVendidoBussiness.CrearProductoVendido(productoVendido);
-            else ProductoVendidoBussiness.ModificarProductoVendido(productoVendido.Id, productoVendido);
+            if (productoVendido.Id == 0)
+                await ProductosVendidosService.CrearProductoVendidoAsync(productoVendido);
+            else
+                await ProductosVendidosService.ModificarProductoVendidoAsync(
+                    productoVendido.Id, productoVendido);
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            await JS.InvokeVoidAsync("logErrorConsole", "No se pudo modificar/crear el producto vendido");
             return;
         }
 

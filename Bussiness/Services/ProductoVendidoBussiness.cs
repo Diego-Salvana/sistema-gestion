@@ -12,11 +12,11 @@ public class ProductoVendidoBussiness
         _productosVendidosDataAcces = dataAccess;
     }
 
-    public List<ProductoVendido> ListarProductosVendidos ()
+    public async Task<List<ProductoVendido>> ListarProductosVendidosAsync ()
     {
         try
         {
-            return _productosVendidosDataAcces.ListarProductosVendidos();
+            return await _productosVendidosDataAcces.ListarProductosVendidosAsync();
         }
         catch (Exception ex)
         {
@@ -24,27 +24,23 @@ public class ProductoVendidoBussiness
         }
     }
 
-    public ProductoVendido ObtenerProductoVendido (int id)
+    public async Task<ProductoVendido> ObtenerProductoVendidoAsync (int id)
     {
-        ProductoVendido? productoVendido;
-
         try
         {
-            productoVendido = _productosVendidosDataAcces.ObtenerProductoVendido(id);
+            return await _productosVendidosDataAcces.ObtenerProductoVendidoAsync(id);
         }
         catch (Exception ex)
         {
             throw ErrorHandler.Error(ex, "Ocurrió un error al obtener el ProductoVendido");
         }
-
-        return productoVendido;
     }
 
-    public void CrearProductoVendido (ProductoVendido productoVendido)
+    public async Task CrearProductoVendidoAsync (ProductoVendido productoVendido)
     {
         try
         {
-            _productosVendidosDataAcces.CrearProductoVendido(productoVendido);
+            await _productosVendidosDataAcces.CrearProductoVendidoAsync(productoVendido);
         }
         catch (Exception ex)
         {
@@ -52,11 +48,11 @@ public class ProductoVendidoBussiness
         }
     }
 
-    public void ModificarProductoVendido (int id, ProductoVendido productoAcutalizado)
+    public async Task ModificarProductoVendidoAsync (int id, ProductoVendido productoAcutalizado)
     {
         try
         {
-            _productosVendidosDataAcces.ModificarProductoVendido(id, productoAcutalizado);
+            await _productosVendidosDataAcces.ModificarProductoVendidoAsync(id, productoAcutalizado);
         }
         catch (Exception ex)
         {
@@ -64,11 +60,11 @@ public class ProductoVendidoBussiness
         }
     }
 
-    public void EliminarProductoVendido (int id)
+    public async Task EliminarProductoVendidoAsync (int id)
     {
         try
         {
-            _productosVendidosDataAcces.EliminarProductoVendido(id);
+            await _productosVendidosDataAcces.EliminarProductoVendidoAsync(id);
         }
         catch (Exception ex)
         {

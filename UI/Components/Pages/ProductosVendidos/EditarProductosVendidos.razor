@@ -1,5 +1,6 @@
 ﻿@page "/productos-vendidos/{id:int}/editar"
-@inject ProductoVendidoBussiness ProductoVendidoBussiness
+@inject ProductosVendidosService ProductosVendidosService
+@inject IJSRuntime JS
 
 <PageTitle>Productos Vendidos</PageTitle>
 
@@ -22,15 +23,8 @@
     [Parameter]
     public int Id { get; set; }
 
-    protected override void OnInitialized ()
+    protected override async Task OnInitializedAsync ()
     {
-        try
-        {
-            productoVendido = ProductoVendidoBussiness.ObtenerProductoVendido(Id);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
+        productoVendido = await ProductosVendidosService.ObtenerProductoVendidoAsync(Id);
     }
 }

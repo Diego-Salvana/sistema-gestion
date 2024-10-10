@@ -1,6 +1,7 @@
 ﻿@page "/ventas"
 @rendermode InteractiveServer
-@inject VentaBussiness VentaBussiness
+@inject VentasService VentasService
+@inject IJSRuntime JS
 
 <PageTitle>Ventas</PageTitle>
 
@@ -30,19 +31,19 @@
                     <tr>
                         <td>@venta.Id</td>
                         <td>
-                            @foreach (string comentario in @venta.Comentarios)
+                            @* @foreach (string comentario in @venta.Comentarios)
                             {
                                 <p>@comentario</p>
-                            }
+                            } *@
                         </td>
-                        <td>@venta.IdUsuario</td>
+                        <td>@venta.Usuario</td>
                         <td class="text-end">
                             <a href="/ventas/@venta.Id/editar" class="pe-1">
                                 <button type="button" class="btn btn-info">Editar</button>
                             </a>
                             <button type="button"
                                     class="btn btn-danger"
-                                    @onclick="() => RemoverVenta(venta.Id)">
+                                    @onclick="() => RemoverVentaAsync(venta.Id)">
                                 Eliminar
                             </button>
                         </td>
@@ -56,20 +57,20 @@
 @code {
     private List<Venta> ventas = [];
 
-    protected override void OnInitialized ()
+    protected override async Task OnInitializedAsync ()
     {
-        ventas = VentaBussiness.ListarVentas();
+        ventas = await VentasService.ListarVentasAsync() ?? [];
     }
 
-    private void RemoverVenta (int id)
+    private async Task RemoverVentaAsync (int id)
     {
         try
         {
-            VentaBussiness.EliminarVenta(id);
+            await VentasService.EliminarVentaAsync(id);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine(ex.Message);
+            await JS.InvokeVoidAsync("logErrorConsole", "No se pudo eliminar la venta");
             return;
         }
 

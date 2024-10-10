@@ -1,5 +1,6 @@
 ﻿using Data.Context;
 using Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data.DataAccess;
 public class UsuariosDataAccess
@@ -11,14 +12,14 @@ public class UsuariosDataAccess
         _sistemaGestionContext = context;
     }
 
-    public List<Usuario> ListarUsuarios ()
+    public async Task<List<Usuario>> ListarUsuariosAsync ()
     {
-        return _sistemaGestionContext.Usuarios.ToList();
+        return await _sistemaGestionContext.Usuarios.ToListAsync();
     }
 
-    public Usuario ObtenerUsuario (int id)
+    public async Task<Usuario> ObtenerUsuarioAsync (int id)
     {
-        Usuario? usuario = _sistemaGestionContext.Usuarios.FirstOrDefault(u => u.Id == id);
+        Usuario? usuario = await _sistemaGestionContext.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
 
         if (usuario is null)
         {
@@ -28,15 +29,15 @@ public class UsuariosDataAccess
         return usuario;
     }
 
-    public void CrearUsuario (Usuario usuario)
+    public async Task CrearUsuarioAsync (Usuario usuario)
     {
-        _sistemaGestionContext.Usuarios.Add(usuario);
-        _sistemaGestionContext.SaveChanges();
+        await _sistemaGestionContext.Usuarios.AddAsync(usuario);
+        await _sistemaGestionContext.SaveChangesAsync();
     }
 
-    public void ModificarUsuario (int id, Usuario usuarioAcutalizado)
+    public async Task ModificarUsuarioAsync (int id, Usuario usuarioAcutalizado)
     {
-        Usuario usuario = ObtenerUsuario(id);
+        Usuario usuario = await ObtenerUsuarioAsync(id);
 
         usuario.Nombre = usuarioAcutalizado.Nombre;
         usuario.Apellido = usuarioAcutalizado.Apellido;
@@ -44,12 +45,12 @@ public class UsuariosDataAccess
         usuario.Contraseña = usuarioAcutalizado.Contraseña;
         usuario.Mail = usuarioAcutalizado.Mail;
 
-        _sistemaGestionContext.SaveChanges();
+        await _sistemaGestionContext.SaveChangesAsync();
     }
 
-    public void EliminarUsuario (int id)
+    public async Task EliminarUsuarioAsync (int id)
     {
-        _sistemaGestionContext.Usuarios.Remove(ObtenerUsuario(id));
-        _sistemaGestionContext.SaveChanges();
+        _sistemaGestionContext.Usuarios.Remove(await ObtenerUsuarioAsync(id));
+        await _sistemaGestionContext.SaveChangesAsync();
     }
 }

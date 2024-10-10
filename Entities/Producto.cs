@@ -3,6 +3,7 @@
 namespace Entities;
 public class Producto
 {
+    [Key]
     public int Id { get; set; }
 
     [Required(ErrorMessage = "El campo Descripción es requerido.")]
@@ -22,7 +23,7 @@ public class Producto
     [Range(0, int.MaxValue, ErrorMessage = "El Stock debe ser mayor o igual a 0.")]
     public int Stock { get; set; }
 
-    [Required(ErrorMessage = "El campo Id Usuario es requerido.")]
-    [Range(1, int.MaxValue, ErrorMessage = "El Id Usuario debe ser mayor a 0.")]
-    public int IdUsuario { get; set; }
+    public Usuario Usuario { get; set; } = null!;
+
+    public List<Venta> Ventas { get; set; } = [];
 }

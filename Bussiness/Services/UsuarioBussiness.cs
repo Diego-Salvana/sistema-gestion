@@ -5,18 +5,18 @@ using Entities;
 namespace Bussiness.Services;
 public class UsuarioBussiness
 {
-    private readonly UsuariosDataAccess _usuarioDataAccess;
+    private readonly UsuariosDataAccess _usuariosDataAccess;
 
     public UsuarioBussiness (UsuariosDataAccess dataAccess)
     {
-        _usuarioDataAccess = dataAccess;
+        _usuariosDataAccess = dataAccess;
     }
 
-    public List<Usuario> ListarUsuarios ()
+    public async Task<List<Usuario>> ListarUsuariosAsync ()
     {
         try
         {
-            return _usuarioDataAccess.ListarUsuarios();
+            return await _usuariosDataAccess.ListarUsuariosAsync();
         }
         catch (Exception ex)
         {
@@ -24,27 +24,23 @@ public class UsuarioBussiness
         }
     }
 
-    public Usuario ObtenerUsuario (int id)
+    public async Task<Usuario> ObtenerUsuarioAsync (int id)
     {
-        Usuario? usuario;
-
         try
         {
-            usuario = _usuarioDataAccess.ObtenerUsuario(id);
+            return await _usuariosDataAccess.ObtenerUsuarioAsync(id);
         }
         catch (Exception ex)
         {
-            throw ErrorHandler.Error(ex, "Ocurrió un error al obtener el usuario");
+            throw ErrorHandler.Error(ex, "Ocurrió error al obtener el usuario");
         }
-
-        return usuario;
     }
 
-    public void CrearUsuario (Usuario usuario)
+    public async Task CrearUsuarioAsync (Usuario usuario)
     {
         try
         {
-            _usuarioDataAccess.CrearUsuario(usuario);
+            await _usuariosDataAccess.CrearUsuarioAsync(usuario);
         }
         catch (Exception ex)
         {
@@ -52,11 +48,11 @@ public class UsuarioBussiness
         }
     }
 
-    public void ModificarUsuario (int id, Usuario usuarioAcutalizado)
+    public async Task ModificarUsuarioAsync (int id, Usuario usuarioAcutalizado)
     {
         try
         {
-            _usuarioDataAccess.ModificarUsuario(id, usuarioAcutalizado);
+            await _usuariosDataAccess.ModificarUsuarioAsync(id, usuarioAcutalizado);
         }
         catch (Exception ex)
         {
@@ -64,11 +60,11 @@ public class UsuarioBussiness
         }
     }
 
-    public void EliminarUsuario (int id)
+    public async Task EliminarUsuarioAsync (int id)
     {
         try
         {
-            _usuarioDataAccess.EliminarUsuario(id);
+            await _usuariosDataAccess.EliminarUsuarioAsync(id);
         }
         catch (Exception ex)
         {

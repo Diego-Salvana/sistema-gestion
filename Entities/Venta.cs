@@ -3,16 +3,22 @@
 namespace Entities;
 public class Venta
 {
+    [Key]
     public int Id { get; set; }
 
-    public List<string> Comentarios { get; set; } = [];
+    public List<Comentario> Comentarios { get; set; } = [];
 
-    [Required]
-    [Range(1, int.MaxValue, ErrorMessage = "El IdUsuario debe ser mayor a 0.")]
-    public int IdUsuario { get; set; }
+    public List<Producto> Productos { get; set; } = [];
+
+    public Usuario Usuario { get; set; } = null!;
+
+    public List<ProductoVendido> ProductoVendidos { get; set; } = [];
 
     public void AgregarComentario (string comentario)
     {
-        Comentarios.Add(comentario);
+        //if (comentario.Trim().Length > 0)
+        //{
+        //    Comentarios.Add(comentario);
+        //}
     }
 }

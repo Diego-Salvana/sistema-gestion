@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Venta.cs~RF77715f11.TMP" />
+  </ItemGroup>
+
 </Project>

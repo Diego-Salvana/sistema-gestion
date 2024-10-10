@@ -1,8 +1,9 @@
 ﻿@inject NavigationManager NavigationManager
+@inject VentasService VentasService
+@inject IJSRuntime JS
 @rendermode InteractiveServer
-@inject VentaBussiness VentaBussiness
 
-<EditForm Model="venta" OnValidSubmit="GuardarVenta" FormName="venta-form">
+<EditForm Model="venta" OnValidSubmit="GuardarVentaAsync" FormName="venta-form">
     <DataAnnotationsValidator></DataAnnotationsValidator>
 
     <div class="form-group pb-2">
@@ -13,8 +14,8 @@
     <div class="form-group pb-2">
         <label for="id-usuario">IdUsuario</label>
         <InputNumber type="number" class="form-control" id="id-usuario"
-                     @bind-Value="venta.IdUsuario" />
-        <ValidationMessage For="() => venta.IdUsuario" />
+                     @bind-Value="venta.Usuario" />
+        <ValidationMessage For="() => venta.Usuario" />
     </div>
 
     <button type="submit" class="btn btn-primary mt-1">Guardar</button>
@@ -30,23 +31,24 @@
 
     protected override void OnInitialized ()
     {
-        idUsuarioActual = venta.IdUsuario;
+        idUsuarioActual = venta.Usuario.Id;
     }
 
-    private void GuardarVenta ()
+    private async Task GuardarVentaAsync ()
     {
-        if (comentario.Trim().Length > 0) venta.AgregarComentario(comentario);
+        venta.AgregarComentario(comentario);
 
         try
         {
-            if (venta.Id == 0) VentaBussiness.CrearVenta(venta);
-            else VentaBussiness.ModificarVenta(venta.Id, venta);
+            if (venta.Id == 0) await VentasService.CrearVentaAsync(venta);
+            else await VentasService.ModificarVentaAsync(venta.Id, venta);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine(ex.Message);
+            await JS.InvokeVoidAsync("logErrorConsole", "No se pudo modificar/crear la venta");
             return;
         }
+
 
         NavigationManager.NavigateTo("/ventas");
     }

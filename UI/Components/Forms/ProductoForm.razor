@@ -1,8 +1,9 @@
 ﻿@inject NavigationManager NavigationManager
-@inject ProductoBussiness ProductoBussiness
+@inject ProductosService ProductosService
+@inject IJSRuntime JS
 @rendermode InteractiveServer
 
-<EditForm Model="producto" OnValidSubmit="GuardarProducto" FormName="producto-form">
+<EditForm Model="producto" OnValidSubmit="GuardarProductoAsync" FormName="producto-form">
     <DataAnnotationsValidator></DataAnnotationsValidator>
 
     <div class="form-group pb-2">
@@ -32,8 +33,8 @@
     <div class="form-group pb-2">
         <label for="id-usuario">IdUsuario</label>
         <InputNumber type="number" class="form-control" id="id-usuario"
-                     @bind-Value="producto.IdUsuario" />
-        <ValidationMessage For="() => producto.IdUsuario" />
+                     @bind-Value="producto.Usuario" />
+        <ValidationMessage For="() => producto.Usuario" />
     </div>
 
     <button type="submit" class="btn btn-primary mt-1">Guardar</button>
@@ -43,16 +44,16 @@
     [Parameter]
     public Producto producto { get; set; } = null!;
 
-    private void GuardarProducto ()
+    private async Task GuardarProductoAsync ()
     {
         try
         {
-            if (producto.Id == 0) ProductoBussiness.CrearProducto(producto);
-            else ProductoBussiness.ModificarProducto(producto.Id, producto);
+            if (producto.Id == 0) await ProductosService.CrearProductoAsync(producto);
+            else await ProductosService.ModificarProductoAsync(producto.Id, producto);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine(ex.Message);
+            await JS.InvokeVoidAsync("logErrorConsole", "No se pudo modificar/crear el producto");
             return;
         }
 

@@ -1,5 +1,6 @@
 ﻿@page "/ventas/{id:int}/editar"
-@inject VentaBussiness VentaBussiness
+@inject VentasService VentasService
+@inject IJSRuntime JS
 
 <PageTitle>Ventas</PageTitle>
 
@@ -22,15 +23,8 @@
     [Parameter]
     public int Id { get; set; }
 
-    protected override void OnInitialized ()
+    protected override async Task OnInitializedAsync ()
     {
-        try
-        {
-            venta = VentaBussiness.ObtenerVenta(Id);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
+        venta = await VentasService.ObtenerVentaAsync(Id);
     }
 }

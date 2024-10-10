@@ -1,6 +1,7 @@
 ﻿@page "/usuarios"
 @rendermode InteractiveServer
-@inject UsuarioBussiness UsuarioBussiness
+@inject UsuariosService UsuariosService
+@inject IJSRuntime JS
 
 <PageTitle>Usuarios</PageTitle>
 
@@ -41,7 +42,7 @@
                             </a>
                             <button type="button"
                                     class="btn btn-danger"
-                                    @onclick="() => RemoverUsuario(usuario.Id)">
+                                    @onclick="() => RemoverUsuarioAsync(usuario.Id)">
                                 Eliminar
                             </button>
                         </td>
@@ -55,20 +56,20 @@
 @code {
     private List<Usuario> usuarios = [];
 
-    protected override void OnInitialized ()
+    protected override async Task OnInitializedAsync ()
     {
-        usuarios = UsuarioBussiness.ListarUsuarios();
+        usuarios = await UsuariosService.ListarUsuariosAsync() ?? [];
     }
 
-    private void RemoverUsuario (int id)
+    private async Task RemoverUsuarioAsync (int id)
     {
         try
         {
-            UsuarioBussiness.EliminarUsuario(id);
+            await UsuariosService.EliminarUsuarioAsync(id);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine(ex.Message);
+            await JS.InvokeVoidAsync("logErrorConsole", "No se pudo eliminar el usuario");
             return;
         }
 

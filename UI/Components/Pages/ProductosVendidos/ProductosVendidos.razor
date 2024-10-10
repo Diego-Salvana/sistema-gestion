@@ -1,6 +1,7 @@
 ﻿@page "/productos-vendidos"
+@inject ProductosVendidosService ProductosVendidosService
+@inject IJSRuntime JS
 @rendermode InteractiveServer
-@inject ProductoVendidoBussiness ProductoVendidoBussiness
 
 <PageTitle>Productos Vendidos</PageTitle>
 
@@ -30,16 +31,16 @@
                 {
                     <tr>
                         <td>@productoVendido.Id</td>
-                        <td>@productoVendido.IdProducto</td>
+                        <td>@productoVendido.Producto</td>
                         <td>@productoVendido.Stock</td>
-                        <td>@productoVendido.IdVenta</td>
+                        <td>@productoVendido.Ventas</td>
                         <td class="text-end">
                             <a href="/productos-vendidos/@productoVendido.Id/editar" class="pe-1">
                                 <button type="button" class="btn btn-info">Editar</button>
                             </a>
                             <button type="button"
                                     class="btn btn-danger"
-                                    @onclick="() => RemoverProductoVendido(productoVendido.Id)">
+                                    @onclick="() => RemoverProductoVendidoAsync(productoVendido.Id)">
                                 Eliminar
                             </button>
                         </td>
@@ -53,20 +54,20 @@
 @code {
     private List<ProductoVendido> productosVendidos = [];
 
-    protected override void OnInitialized ()
+    protected override async Task OnInitializedAsync ()
     {
-        productosVendidos = ProductoVendidoBussiness.ListarProductosVendidos();
+        productosVendidos = await ProductosVendidosService.ListarProductosVendidosAsync() ?? [];
     }
 
-    private void RemoverProductoVendido (int id)
+    private async Task RemoverProductoVendidoAsync (int id)
     {
         try
         {
-            ProductoVendidoBussiness.EliminarProductoVendido(id);
+            await ProductosVendidosService.EliminarProductoVendidoAsync(id);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine(ex.Message);
+            await JS.InvokeVoidAsync("logErrorConsole", "No se pudo eliminar el producto vendido");
             return;
         }
 

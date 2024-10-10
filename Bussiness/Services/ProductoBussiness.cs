@@ -1,22 +1,25 @@
 ﻿using Bussiness.Utils;
 using Data.DataAccess;
 using Entities;
+using Entities.DTOs;
 
 namespace Bussiness.Services;
 public class ProductoBussiness
 {
     private readonly ProductosDataAccess _productosDataAccess;
+    private readonly UsuariosDataAccess _usuariosDataAccess;
 
-    public ProductoBussiness (ProductosDataAccess dataAccess)
+    public ProductoBussiness (ProductosDataAccess dataAccess, UsuariosDataAccess usuariosDataAccess)
     {
         _productosDataAccess = dataAccess;
+        _usuariosDataAccess = usuariosDataAccess;
     }
 
-    public List<Producto> ListarProductos ()
+    public async Task<List<Producto>> ListarProductosAsync ()
     {
         try
         {
-            return _productosDataAccess.ListarProductos();
+            return await _productosDataAccess.ListarProductosAsync();
         }
         catch (Exception ex)
         {
@@ -24,27 +27,34 @@ public class ProductoBussiness
         }
     }
 
-    public Producto ObtenerProducto (int id)
+    public async Task<Producto> ObtenerProductoAsync (int id)
     {
-        Producto? producto;
-
         try
         {
-            producto = _productosDataAccess.ObtenerProducto(id);
+            return await _productosDataAccess.ObtenerProductoAsync(id);
         }
         catch (Exception ex)
         {
             throw ErrorHandler.Error(ex, "Ocurrió un error al obtener el Producto");
         }
-
-        return producto;
     }
 
-    public void CrearProducto (Producto producto)
+    public async Task CrearProductoAsync (ProductoDTO productoDTO)
     {
         try
         {
-            _productosDataAccess.CrearProducto(producto);
+            Usuario usuario = await _usuariosDataAccess.ObtenerUsuarioAsync(productoDTO.UsuarioId);
+
+            Producto nuevoProducto = new()
+            {
+                Descripcion = productoDTO.Descripcion,
+                Costo = productoDTO.Costo,
+                PrecioVenta = productoDTO.PrecioVenta,
+                Stock = productoDTO.Stock,
+                Usuario = usuario
+            };
+
+            await _productosDataAccess.CrearProductoAsync(nuevoProducto);
         }
         catch (Exception ex)
         {
@@ -52,11 +62,11 @@ public class ProductoBussiness
         }
     }
 
-    public void ModificarProducto (int id, Producto productoAcutalizado)
+    public async Task ModificarProductoAsync (int id, Producto productoAcutalizado)
     {
         try
         {
-            _productosDataAccess.ModificarProducto(id, productoAcutalizado);
+            await _productosDataAccess.ModificarProductoAsync(id, productoAcutalizado);
         }
         catch (Exception ex)
         {
@@ -64,11 +74,11 @@ public class ProductoBussiness
         }
     }
 
-    public void EliminarProducto (int id)
+    public async Task EliminarProductoAsync (int id)
     {
         try
         {
-            _productosDataAccess.EliminarProducto(id);
+            await _productosDataAccess.EliminarProductoAsync(id);
         }
         catch (Exception ex)
         {

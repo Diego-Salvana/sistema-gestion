@@ -6,17 +6,27 @@ namespace Bussiness.Services;
 public class VentaBussiness
 {
     private readonly VentasDataAccess _ventasDataAccess;
+    private readonly UsuariosDataAccess _usuariosDataAccess;
+    private readonly ProductosDataAccess _productosDataAccess;
+    private readonly ProductosVendidosDataAccess _productosVendidosDataAccess;
 
-    public VentaBussiness (VentasDataAccess dataAccess)
+    public VentaBussiness (
+        VentasDataAccess ventasDataAccess,
+        UsuariosDataAccess usuariosDataAccess,
+        ProductosDataAccess productosDataAccess,
+        ProductosVendidosDataAccess productosVendidosDataAccess)
     {
-        _ventasDataAccess = dataAccess;
+        _ventasDataAccess = ventasDataAccess;
+        _usuariosDataAccess = usuariosDataAccess;
+        _productosDataAccess = productosDataAccess;
+        _productosVendidosDataAccess = productosVendidosDataAccess;
     }
 
-    public List<Venta> ListarVentas ()
+    public async Task<List<Venta>> ListarVentasAsync ()
     {
         try
         {
-            return _ventasDataAccess.ListarVentas();
+            return await _ventasDataAccess.ListarVentasAsync();
         }
         catch (Exception ex)
         {
@@ -24,13 +34,13 @@ public class VentaBussiness
         }
     }
 
-    public Venta ObtenerVenta (int id)
+    public async Task<Venta> ObtenerVentaAsync (int id)
     {
         Venta? venta;
 
         try
         {
-            venta = _ventasDataAccess.ObtenerVenta(id);
+            venta = await _ventasDataAccess.ObtenerVentaAsync(id);
         }
         catch (Exception ex)
         {
@@ -40,11 +50,54 @@ public class VentaBussiness
         return venta;
     }
 
-    public void CrearVenta (Venta venta)
+    public async Task CrearVentaAsync (Venta venta)
     {
+        List<Producto> productos = [];
+
         try
         {
-            _ventasDataAccess.CrearVenta(venta);
+            await _usuariosDataAccess.ObtenerUsuarioAsync(venta.Usuario.Id);
+
+            //foreach (int productoId in venta.Productos)
+            //{
+            //    Producto producto = await _productosDataAccess.ObtenerProductoAsync(productoId);
+
+            //    if (producto.Stock < 1)
+            //        throw new Exception($"Sin stock para el producto: {producto.Descripcion}");
+
+            //    productos.Add(producto);
+            //}
+
+            Venta nuevaVenta = await _ventasDataAccess.CrearVentaAsync(venta);
+
+            foreach (Producto producto in productos)
+            {
+                producto.Stock -= 1;
+                await _productosDataAccess.ModificarProductoAsync(producto.Id, producto);
+
+                ProductoVendido? productoVendido =
+                    await _productosVendidosDataAccess.ProductoVendidoByProductoId(producto.Id);
+
+                if (productoVendido is null)
+                {
+                    ProductoVendido nuevoProdVendido = new()
+                    {
+                        Producto = producto,
+                        Stock = producto.Stock,
+                        Ventas = [nuevaVenta]
+                    };
+
+                    await _productosVendidosDataAccess.CrearProductoVendidoAsync(nuevoProdVendido);
+                }
+                else
+                {
+                    productoVendido.Stock = producto.Stock;
+                    productoVendido.Ventas.Add(nuevaVenta);
+
+                    await _productosVendidosDataAccess
+                    .ModificarProductoVendidoAsync(productoVendido.Id, productoVendido);
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -52,11 +105,11 @@ public class VentaBussiness
         }
     }
 
-    public void ModificarVenta (int id, Venta ventaAcutalizada)
+    public async Task ModificarVentaAsync (int id, Venta ventaAcutalizada)
     {
         try
         {
-            _ventasDataAccess.ModificarVenta(id, ventaAcutalizada);
+            await _ventasDataAccess.ModificarVentaAsync(id, ventaAcutalizada);
         }
         catch (Exception ex)
         {
@@ -64,11 +117,11 @@ public class VentaBussiness
         }
     }
 
-    public void EliminarVenta (int id)
+    public async Task EliminarVentaAsync (int id)
     {
         try
         {
-            _ventasDataAccess.EliminarVenta(id);
+            await _ventasDataAccess.EliminarVentaAsync(id);
         }
         catch (Exception ex)
         {

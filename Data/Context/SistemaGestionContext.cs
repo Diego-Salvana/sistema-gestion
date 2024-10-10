@@ -11,6 +11,9 @@ public class SistemaGestionContext : DbContext
 
     protected override void OnConfiguring (DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=SistemaGestionDS;Integrated Security=True;TrustServerCertificate=True");
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=SistemaGestionDS;Integrated Security=True;TrustServerCertificate=True");
+        }
     }
 }
