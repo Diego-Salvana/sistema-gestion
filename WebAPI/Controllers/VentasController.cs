@@ -1,5 +1,6 @@
 ﻿using Bussiness.Services;
 using Entities;
+using Entities.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -54,15 +55,18 @@ public class VentasController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Venta>> CrearVenta (Venta venta)
+    public async Task<ActionResult<Venta>> CrearVenta (VentaDTO ventaDTO)
     {
+        if (ventaDTO.ProductosDetalle.IsNullOrEmpty())
+        {
+            return BadRequest("La lista de productos no debe estar vacía");
+        }
+
         try
         {
-            if (venta.Productos.IsNullOrEmpty()) throw new Exception("Lista de productos vacía");
+            await _ventaBussiness.CrearVentaAsync(ventaDTO);
 
-            await _ventaBussiness.CrearVentaAsync(venta);
-
-            return CreatedAtAction(nameof(ObtenerVenta), new { id = venta.Id }, venta);
+            return CreatedAtAction(nameof(ObtenerVenta), new { id = ventaDTO.UsuarioId }, ventaDTO);
         }
         catch (ArgumentException ex)
         {

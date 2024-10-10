@@ -1,6 +1,8 @@
 ﻿using Bussiness.Utils;
+using Data.Context;
 using Data.DataAccess;
 using Entities;
+using Entities.DTOs;
 
 namespace Bussiness.Services;
 public class VentaBussiness
@@ -50,33 +52,44 @@ public class VentaBussiness
         return venta;
     }
 
-    public async Task CrearVentaAsync (Venta venta)
+    public async Task CrearVentaAsync (VentaDTO ventaDTO)
     {
-        List<Producto> productos = [];
+        List<int> idsProductos = ventaDTO.ProductosDetalle.Select(pd => pd.Id).ToList();
 
         try
         {
-            await _usuariosDataAccess.ObtenerUsuarioAsync(venta.Usuario.Id);
+            Usuario usuario = await _usuariosDataAccess.ObtenerUsuarioAsync(ventaDTO.UsuarioId);
 
-            //foreach (int productoId in venta.Productos)
-            //{
-            //    Producto producto = await _productosDataAccess.ObtenerProductoAsync(productoId);
+            List<Producto> productos = await _productosDataAccess.ObtenerProductosAsync(idsProductos);
 
-            //    if (producto.Stock < 1)
-            //        throw new Exception($"Sin stock para el producto: {producto.Descripcion}");
+            foreach (var idProducto in ventaDTO.ProductosDetalle)
+            {
+                Producto producto = productos.FirstOrDefault(p => p.Id == idProducto.Id) ??
+                     throw new Exception($"Producto con Id {idProducto.Id} no encontrado.");
 
-            //    productos.Add(producto);
-            //}
+                if (producto.Stock < idProducto.Cantidad || producto.Stock < 1)
+                {
+                    throw new Exception($"Sin stock para el producto: {producto.Descripcion}");
+                }
+            }
 
-            Venta nuevaVenta = await _ventasDataAccess.CrearVentaAsync(venta);
+            Venta ventaObj = new() { Productos = productos, Usuario = usuario };
+
+            Venta nuevaVenta = await _ventasDataAccess.CrearVentaAsync(ventaObj);
+
+            List<ProductoVendido> productosVendidos =
+                await _productosVendidosDataAccess.ObtenerProductosVendidosAsync(idsProductos);
 
             foreach (Producto producto in productos)
             {
-                producto.Stock -= 1;
-                await _productosDataAccess.ModificarProductoAsync(producto.Id, producto);
+                int cantidad = ventaDTO.ProductosDetalle
+                                    .FirstOrDefault(pd => pd.Id == producto.Id)?
+                                    .Cantidad ?? 0;
+
+                producto.Stock -= cantidad;
 
                 ProductoVendido? productoVendido =
-                    await _productosVendidosDataAccess.ProductoVendidoByProductoId(producto.Id);
+                    productosVendidos.FirstOrDefault(pv => pv.Producto == producto);
 
                 if (productoVendido is null)
                 {
@@ -93,15 +106,14 @@ public class VentaBussiness
                 {
                     productoVendido.Stock = producto.Stock;
                     productoVendido.Ventas.Add(nuevaVenta);
-
-                    await _productosVendidosDataAccess
-                    .ModificarProductoVendidoAsync(productoVendido.Id, productoVendido);
                 }
             }
+
+            await _productosDataAccess.ModificarProductosAsync();
         }
         catch (Exception ex)
         {
-            throw ErrorHandler.Error(ex, "Ocurrió un error al crear la Venta");
+            throw ErrorHandler.Error(ex, ex.Message);
         }
     }
 

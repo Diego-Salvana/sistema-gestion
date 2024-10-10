@@ -1,6 +1,7 @@
 ﻿using Data.Context;
 using Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Data.DataAccess;
 public class ProductosVendidosDataAccess
@@ -30,13 +31,13 @@ public class ProductosVendidosDataAccess
         return productoVendido;
     }
 
-    public async Task<ProductoVendido?> ProductoVendidoByProductoId (int IdProducto)
+    public async Task<List<ProductoVendido>> ObtenerProductosVendidosAsync (List<int> ids)
     {
-        ProductoVendido? producto = await _sistemaGestionContext
-                                    .ProductosVendidos
-                                    .FirstOrDefaultAsync(p => p.Producto.Id == IdProducto);
+        List<ProductoVendido> productos = await _sistemaGestionContext.ProductosVendidos
+                                            .Where(p => ids.Contains(p.Producto.Id))
+                                            .ToListAsync();
 
-        return producto;
+        return productos;
     }
 
     public async Task CrearProductoVendidoAsync (ProductoVendido productoVendido)

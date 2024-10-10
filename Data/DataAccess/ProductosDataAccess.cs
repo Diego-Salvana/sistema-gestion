@@ -1,6 +1,8 @@
 ﻿using Data.Context;
+using Data.Migrations;
 using Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Data.DataAccess;
 public class ProductosDataAccess
@@ -33,6 +35,15 @@ public class ProductosDataAccess
         return producto;
     }
 
+    public async Task<List<Producto>> ObtenerProductosAsync (List<int> ids)
+    {
+        List<Producto> productos = await _sistemaGestionContext.Productos
+                                            .Where(p => ids.Contains(p.Id))
+                                            .ToListAsync();
+
+        return productos;
+    }
+
     public async Task CrearProductoAsync (Producto producto)
     {
         await _sistemaGestionContext.Productos.AddAsync(producto);
@@ -49,6 +60,11 @@ public class ProductosDataAccess
         producto.Stock = productoActualizado.Stock;
         producto.Usuario = productoActualizado.Usuario;
 
+        await _sistemaGestionContext.SaveChangesAsync();
+    }
+
+    public async Task ModificarProductosAsync ()
+    {
         await _sistemaGestionContext.SaveChangesAsync();
     }
 
