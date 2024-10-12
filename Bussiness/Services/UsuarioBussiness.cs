@@ -44,6 +44,14 @@ public class UsuarioBussiness
     {
         try
         {
+            Usuario? usuarioExistente = 
+                await _usuariosDataAccess.ObtenerUsuarioByEmail(usuario.Mail);
+
+            if (usuarioExistente is not null)
+            {
+                throw new ArgumentException("El email ya está en uso");
+            }
+
             Usuario nuevoUsuario = await _usuariosDataAccess.CrearUsuarioAsync(usuario);
 
             nuevoUsuario.Contraseña = string.Empty;

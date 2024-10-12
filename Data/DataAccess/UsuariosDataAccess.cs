@@ -29,7 +29,8 @@ public class UsuariosDataAccess
 
     public async Task<Usuario> ObtenerUsuarioAsync (int id)
     {
-        Usuario? usuario = await _sistemaGestionContext.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
+        Usuario? usuario = await _sistemaGestionContext.Usuarios
+                                        .FirstOrDefaultAsync(u => u.Id == id);
 
         if (usuario is null)
         {
@@ -37,6 +38,12 @@ public class UsuariosDataAccess
         }
 
         return usuario;
+    }
+
+    public async Task<Usuario?> ObtenerUsuarioByEmail (string mail)
+    {
+        return await _sistemaGestionContext.Usuarios
+                            .FirstOrDefaultAsync(u => u.Mail == mail);
     }
 
     public async Task<Usuario> CrearUsuarioAsync (Usuario usuario)

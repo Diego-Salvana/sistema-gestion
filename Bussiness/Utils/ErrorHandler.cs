@@ -7,9 +7,9 @@ public static class ErrorHandler
 
         if (ex is ArgumentException)
         {
-            return new ArgumentException(ex.Message);
+            return new ArgumentException(ex.Message, ex);
         } 
 
-        return new Exception(message);
+        return new Exception(message, ex);
     }
 }

@@ -16,4 +16,11 @@ public class SistemaGestionContext : DbContext
             optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=SistemaGestionDS;Integrated Security=True;TrustServerCertificate=True");
         }
     }
+
+    protected override void OnModelCreating (ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Usuario>().HasIndex(u => u.Mail).IsUnique();
+    }
 }
