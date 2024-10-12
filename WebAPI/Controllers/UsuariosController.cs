@@ -58,9 +58,13 @@ public class UsuariosController : ControllerBase
     {
         try
         {
-            await _usuarioBussiness.CrearUsuarioAsync(usuario);
+            Usuario nuevoUsuario = await _usuarioBussiness.CrearUsuarioAsync(usuario);
 
-            return CreatedAtAction(nameof(ObtenerUsuario), new { id = usuario.Id }, usuario);
+            return CreatedAtAction(
+                nameof(ObtenerUsuario),
+                new { id = nuevoUsuario.Id },
+                nuevoUsuario
+            );
         }
         catch (Exception ex)
         {

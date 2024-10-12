@@ -28,7 +28,11 @@ public class UsuarioBussiness
     {
         try
         {
-            return await _usuariosDataAccess.ObtenerUsuarioAsync(id);
+            Usuario usuario = await _usuariosDataAccess.ObtenerUsuarioAsync(id);
+
+            usuario.Contraseña = string.Empty;
+
+            return usuario;
         }
         catch (Exception ex)
         {
@@ -36,11 +40,15 @@ public class UsuarioBussiness
         }
     }
 
-    public async Task CrearUsuarioAsync (Usuario usuario)
+    public async Task<Usuario> CrearUsuarioAsync (Usuario usuario)
     {
         try
         {
-            await _usuariosDataAccess.CrearUsuarioAsync(usuario);
+            Usuario nuevoUsuario = await _usuariosDataAccess.CrearUsuarioAsync(usuario);
+
+            nuevoUsuario.Contraseña = string.Empty;
+
+            return nuevoUsuario;
         }
         catch (Exception ex)
         {

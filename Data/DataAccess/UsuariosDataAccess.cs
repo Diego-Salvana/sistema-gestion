@@ -14,7 +14,17 @@ public class UsuariosDataAccess
 
     public async Task<List<Usuario>> ListarUsuariosAsync ()
     {
-        return await _sistemaGestionContext.Usuarios.ToListAsync();
+        return await _sistemaGestionContext.Usuarios
+                            .Select(u => new Usuario()
+                            {
+                                Id = u.Id,
+                                Nombre = u.Nombre,
+                                Apellido = u.Apellido,
+                                NombreUsuario = u.NombreUsuario,
+                                Contraseña = string.Empty,
+                                Mail = u.Mail,
+                            })
+                            .ToListAsync();
     }
 
     public async Task<Usuario> ObtenerUsuarioAsync (int id)
@@ -29,10 +39,12 @@ public class UsuariosDataAccess
         return usuario;
     }
 
-    public async Task CrearUsuarioAsync (Usuario usuario)
+    public async Task<Usuario> CrearUsuarioAsync (Usuario usuario)
     {
         await _sistemaGestionContext.Usuarios.AddAsync(usuario);
         await _sistemaGestionContext.SaveChangesAsync();
+
+        return usuario;
     }
 
     public async Task ModificarUsuarioAsync (int id, Usuario usuarioAcutalizado)
