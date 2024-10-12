@@ -62,11 +62,22 @@ public class ProductoBussiness
         }
     }
 
-    public async Task ModificarProductoAsync (int id, Producto productoAcutalizado)
+    public async Task ModificarProductoAsync (int id, ProductoDTO productoDTO)
     {
         try
         {
-            await _productosDataAccess.ModificarProductoAsync(id, productoAcutalizado);
+            Usuario usuario = await _usuariosDataAccess.ObtenerUsuarioAsync(productoDTO.UsuarioId);
+
+            Producto productoActualizado = new()
+            {
+                Descripcion = productoDTO.Descripcion,
+                Costo = productoDTO.Costo,
+                PrecioVenta = productoDTO.PrecioVenta,
+                Stock = productoDTO.Stock,
+                Usuario = usuario
+            };
+
+            await _productosDataAccess.ModificarProductoAsync(id, productoActualizado);
         }
         catch (Exception ex)
         {

@@ -60,7 +60,11 @@ public class ProductosController : ControllerBase
         {
             await _productoBussiness.CrearProductoAsync(productoDTO);
 
-            return CreatedAtAction(nameof(ObtenerProducto), new { id = productoDTO.UsuarioId }, productoDTO);
+            return CreatedAtAction(
+                nameof(ObtenerProducto),
+                new { id = productoDTO.UsuarioId },
+                productoDTO
+            );
         }
         catch (Exception ex)
         {
@@ -69,7 +73,7 @@ public class ProductosController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> ModificarProducto (int id, Producto producto)
+    public async Task<ActionResult> ModificarProducto (int id, ProductoDTO productoDTO)
     {
         if (id <= 0)
         {
@@ -78,7 +82,7 @@ public class ProductosController : ControllerBase
 
         try
         {
-            await _productoBussiness.ModificarProductoAsync(id, producto);
+            await _productoBussiness.ModificarProductoAsync(id, productoDTO);
 
             return NoContent();
         }

@@ -1,8 +1,7 @@
 ﻿using Data.Context;
-using Data.Migrations;
 using Entities;
+using Entities.DTOs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Data.DataAccess;
 public class ProductosDataAccess
@@ -18,6 +17,7 @@ public class ProductosDataAccess
     {
         return await _sistemaGestionContext.Productos
                             .Include(p => p.Usuario)
+                            .Select(p => ProductoDTORespuesta.Crear(p))
                             .ToListAsync();
     }
 
@@ -32,14 +32,16 @@ public class ProductosDataAccess
             throw new ArgumentException($"No existe el producto con id {id}");
         }
 
-        return producto;
+        Producto productoDTO = ProductoDTORespuesta.Crear(producto);
+
+        return productoDTO;
     }
 
     public async Task<List<Producto>> ObtenerProductosAsync (List<int> ids)
     {
         List<Producto> productos = await _sistemaGestionContext.Productos
-                                            .Where(p => ids.Contains(p.Id))
-                                            .ToListAsync();
+                                                .Where(p => ids.Contains(p.Id))
+                                                .ToListAsync();
 
         return productos;
     }
