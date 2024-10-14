@@ -1,6 +1,8 @@
 ﻿namespace Entities.DTOs;
 public class VentaDTO
 {
+    public string Comentario { get; set; } = null!;
+
     public List<DetalleProducto> ProductosDetalle { get; set; } = [];
 
     public int UsuarioId { get; set; }

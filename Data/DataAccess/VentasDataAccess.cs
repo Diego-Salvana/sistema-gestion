@@ -1,5 +1,6 @@
 ﻿using Data.Context;
 using Entities;
+using Entities.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.DataAccess;
@@ -14,7 +15,11 @@ public class VentasDataAccess
 
     public async Task<List<Venta>> ListarVentasAsync ()
     {
-        return await _sistemaGestionContext.Ventas.ToListAsync();
+        return await _sistemaGestionContext.Ventas
+                            .Include(v => v.Productos)
+                            .Include(v => v.Usuario)
+                            .Select(v => VentaDTORespuesta.Crear(v))
+                            .ToListAsync();
     }
 
     public async Task<Venta> ObtenerVentaAsync (int id)
@@ -42,7 +47,7 @@ public class VentasDataAccess
         Venta venta = await ObtenerVentaAsync(id);
 
         venta.Usuario = ventaActualizada.Usuario;
-        venta.Comentarios = ventaActualizada.Comentarios;
+        venta.Comentario = ventaActualizada.Comentario;
         venta.Productos = ventaActualizada.Productos;
 
         await _sistemaGestionContext.SaveChangesAsync();

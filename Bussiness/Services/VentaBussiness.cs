@@ -73,12 +73,14 @@ public class VentaBussiness
                 }
             }
 
-            Venta ventaObj = new() { Productos = productos, Usuario = usuario };
+            Venta ventaObj = new()
+            {
+                Productos = productos,
+                Usuario = usuario,
+                Comentario = ventaDTO.Comentario
+            };
 
             Venta nuevaVenta = await _ventasDataAccess.CrearVentaAsync(ventaObj);
-
-            List<ProductoVendido> productosVendidos =
-                await _productosVendidosDataAccess.ObtenerProductosVendidosAsync(idsProductos);
 
             foreach (Producto producto in productos)
             {
@@ -88,25 +90,14 @@ public class VentaBussiness
 
                 producto.Stock -= cantidad;
 
-                ProductoVendido? productoVendido =
-                    productosVendidos.FirstOrDefault(pv => pv.Producto == producto);
-
-                if (productoVendido is null)
+                ProductoVendido productoVendido = new()
                 {
-                    ProductoVendido nuevoProdVendido = new()
-                    {
-                        Producto = producto,
-                        Stock = producto.Stock,
-                        Ventas = [nuevaVenta]
-                    };
+                    Producto = producto,
+                    Stock = cantidad,
+                    Venta = nuevaVenta
+                };
 
-                    await _productosVendidosDataAccess.CrearProductoVendidoAsync(nuevoProdVendido);
-                }
-                else
-                {
-                    productoVendido.Stock = producto.Stock;
-                    productoVendido.Ventas.Add(nuevaVenta);
-                }
+                await _productosVendidosDataAccess.CrearProductoVendidoAsync(productoVendido);
             }
 
             await _productosDataAccess.ModificarProductosAsync();

@@ -52,7 +52,7 @@ public class ProductosVendidosDataAccess
 
         productoVendido.Producto = productoAcutalizado.Producto;
         productoVendido.Stock = productoAcutalizado.Stock;
-        productoVendido.Ventas = productoAcutalizado.Ventas;
+        productoVendido.Venta = productoAcutalizado.Venta;
 
         await _sistemaGestionContext.SaveChangesAsync();
     }

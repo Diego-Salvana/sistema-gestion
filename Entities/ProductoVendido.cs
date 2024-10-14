@@ -11,5 +11,5 @@ public class ProductoVendido
     [Range(0, int.MaxValue, ErrorMessage = "El Stock debe ser mayor o igual a 0.")]
     public int Stock { get; set; }
 
-    public List<Venta> Ventas { get; set; } = [];
+    public Venta Venta { get; set; } = null!;
 }
