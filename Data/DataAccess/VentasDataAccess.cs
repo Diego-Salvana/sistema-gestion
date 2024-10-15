@@ -16,7 +16,7 @@ public class VentasDataAccess
     public async Task<List<Venta>> ListarVentasAsync ()
     {
         return await _sistemaGestionContext.Ventas
-                            .Include(v => v.Productos)
+                            .Include(v => v.ProductosVendidos)
                             .Include(v => v.Usuario)
                             .Select(v => VentaDTORespuesta.Crear(v))
                             .ToListAsync();
@@ -48,14 +48,16 @@ public class VentasDataAccess
 
         venta.Usuario = ventaActualizada.Usuario;
         venta.Comentario = ventaActualizada.Comentario;
-        venta.Productos = ventaActualizada.Productos;
+        venta.ProductosVendidos = ventaActualizada.ProductosVendidos;
 
         await _sistemaGestionContext.SaveChangesAsync();
     }
 
     public async Task EliminarVentaAsync (int id)
     {
-        _sistemaGestionContext.Ventas.Remove(await ObtenerVentaAsync(id));
+        Venta venta = await ObtenerVentaAsync(id);
+
+        _sistemaGestionContext.Ventas.Remove(venta);
         await _sistemaGestionContext.SaveChangesAsync();
     }
 }

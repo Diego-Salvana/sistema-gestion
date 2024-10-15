@@ -2,17 +2,27 @@
 using Data.DataAccess;
 using Entities;
 using Entities.DTOs;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Bussiness.Services;
 public class ProductoBussiness
 {
     private readonly ProductosDataAccess _productosDataAccess;
     private readonly UsuariosDataAccess _usuariosDataAccess;
+    private readonly ProductosVendidosDataAccess _productosVendidosDataAccess;
+    private readonly VentasDataAccess _ventasDataAccess;
 
-    public ProductoBussiness (ProductosDataAccess dataAccess, UsuariosDataAccess usuariosDataAccess)
+
+    public ProductoBussiness (
+        ProductosDataAccess dataAccess,
+        UsuariosDataAccess usuariosDataAccess,
+        ProductosVendidosDataAccess productosVendidosDataAccess,
+        VentasDataAccess ventasDataAccess)
     {
         _productosDataAccess = dataAccess;
         _usuariosDataAccess = usuariosDataAccess;
+        _productosVendidosDataAccess = productosVendidosDataAccess;
+        _ventasDataAccess = ventasDataAccess;
     }
 
     public async Task<List<Producto>> ListarProductosAsync ()
@@ -89,6 +99,9 @@ public class ProductoBussiness
     {
         try
         {
+            List<ProductoVendido> productosVendidos =
+                await _productosVendidosDataAccess.ObtenerProductosVendidosByProductosIdsAsync(id);
+
             await _productosDataAccess.EliminarProductoAsync(id);
         }
         catch (Exception ex)

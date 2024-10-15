@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Entities;
 public class Venta
@@ -8,7 +9,8 @@ public class Venta
 
     public string Comentario { get; set; } = null!;
 
-    public List<Producto> Productos { get; set; } = [];
+    [JsonIgnore]
+    public List<ProductoVendido> ProductosVendidos { get; set; } = [];
 
     public Usuario Usuario { get; set; } = null!;
 

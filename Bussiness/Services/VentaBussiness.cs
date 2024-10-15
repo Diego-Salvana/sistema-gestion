@@ -75,7 +75,7 @@ public class VentaBussiness
 
             Venta ventaObj = new()
             {
-                Productos = productos,
+                ProductosVendidos = [],
                 Usuario = usuario,
                 Comentario = ventaDTO.Comentario
             };
@@ -98,6 +98,8 @@ public class VentaBussiness
                 };
 
                 await _productosVendidosDataAccess.CrearProductoVendidoAsync(productoVendido);
+
+                nuevaVenta.ProductosVendidos.Add(productoVendido);
             }
 
             await _productosDataAccess.ModificarProductosAsync();

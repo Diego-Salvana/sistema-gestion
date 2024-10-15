@@ -142,21 +142,6 @@ namespace Data.Migrations
                     b.ToTable("Ventas");
                 });
 
-            modelBuilder.Entity("ProductoVenta", b =>
-                {
-                    b.Property<int>("ProductosId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VentasId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductosId", "VentasId");
-
-                    b.HasIndex("VentasId");
-
-                    b.ToTable("ProductoVenta");
-                });
-
             modelBuilder.Entity("Entities.Producto", b =>
                 {
                     b.HasOne("Entities.Usuario", "Usuario")
@@ -177,7 +162,7 @@ namespace Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Entities.Venta", "Venta")
-                        .WithMany()
+                        .WithMany("ProductosVendidos")
                         .HasForeignKey("VentaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -198,19 +183,9 @@ namespace Data.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("ProductoVenta", b =>
+            modelBuilder.Entity("Entities.Venta", b =>
                 {
-                    b.HasOne("Entities.Producto", null)
-                        .WithMany()
-                        .HasForeignKey("ProductosId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Entities.Venta", null)
-                        .WithMany()
-                        .HasForeignKey("VentasId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("ProductosVendidos");
                 });
 #pragma warning restore 612, 618
         }

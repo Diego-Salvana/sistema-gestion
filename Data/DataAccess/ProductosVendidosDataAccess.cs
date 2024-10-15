@@ -1,7 +1,6 @@
 ﻿using Data.Context;
 using Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Data.DataAccess;
 public class ProductosVendidosDataAccess
@@ -21,7 +20,7 @@ public class ProductosVendidosDataAccess
     public async Task<ProductoVendido> ObtenerProductoVendidoAsync (int id)
     {
         ProductoVendido? productoVendido =
-            await _sistemaGestionContext.ProductosVendidos.FirstOrDefaultAsync(p => p.Id == id);
+            await _sistemaGestionContext.ProductosVendidos.FirstOrDefaultAsync(pv => pv.Id == id);
 
         if (productoVendido is null)
         {
@@ -31,11 +30,19 @@ public class ProductosVendidosDataAccess
         return productoVendido;
     }
 
+    public async Task<List<ProductoVendido>> ObtenerProductosVendidosByProductosIdsAsync (int productoId)
+    {
+        return await _sistemaGestionContext.ProductosVendidos
+                            .Include(pv => pv.Venta)
+                            .Where(pv => pv.Producto.Id == productoId)
+                            .ToListAsync();
+    }
+
     public async Task<List<ProductoVendido>> ObtenerProductosVendidosAsync (List<int> ids)
     {
         List<ProductoVendido> productos = await _sistemaGestionContext.ProductosVendidos
-                                            .Where(p => ids.Contains(p.Producto.Id))
-                                            .ToListAsync();
+                                                        .Where(pv => ids.Contains(pv.Producto.Id))
+                                                        .ToListAsync();
 
         return productos;
     }

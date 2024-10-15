@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(SistemaGestionContext))]
-    [Migration("20241009192834_ProductoUsuario")]
-    partial class ProductoUsuario
+    [Migration("20241015004605_Tablas")]
+    partial class Tablas
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -64,17 +64,20 @@ namespace Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("IdProducto")
+                    b.Property<int>("ProductoId")
                         .HasColumnType("int");
-
-                    b.Property<string>("IdVentas")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
+                    b.Property<int>("VentaId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ProductoId");
+
+                    b.HasIndex("VentaId");
 
                     b.ToTable("ProductosVendidos");
                 });
@@ -114,6 +117,9 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Mail")
+                        .IsUnique();
+
                     b.ToTable("Usuarios");
                 });
 
@@ -125,18 +131,16 @@ namespace Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Comentarios")
+                    b.Property<string>("Comentario")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("IdProductos")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("IdUsuario")
+                    b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Ventas");
                 });
@@ -150,6 +154,41 @@ namespace Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("Entities.ProductoVendido", b =>
+                {
+                    b.HasOne("Entities.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Entities.Venta", "Venta")
+                        .WithMany("ProductosVendidos")
+                        .HasForeignKey("VentaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Producto");
+
+                    b.Navigation("Venta");
+                });
+
+            modelBuilder.Entity("Entities.Venta", b =>
+                {
+                    b.HasOne("Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("Entities.Venta", b =>
+                {
+                    b.Navigation("ProductosVendidos");
                 });
 #pragma warning restore 612, 618
         }
