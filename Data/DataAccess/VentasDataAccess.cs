@@ -12,19 +12,39 @@ public class VentasDataAccess
     {
         _sistemaGestionContext = context;
     }
-
-    public async Task<List<Venta>> ListarVentasAsync ()
+    public async Task<List<VentaDTORespuesta>> ListarVentasAsync ()
     {
-        return await _sistemaGestionContext.Ventas
-                            .Include(v => v.ProductosVendidos)
-                            .Include(v => v.Usuario)
-                            .Select(v => VentaDTORespuesta.Crear(v))
-                            .ToListAsync();
+        var ventas = await _sistemaGestionContext.Ventas
+                                    .Include(v => v.ProductosVendidos)
+                                    .ThenInclude(pv => pv.Producto)
+                                    .Include(v => v.Usuario)
+                                    .Select(v => new VentaDTORespuesta(v))
+                                    .ToListAsync();
+
+        return ventas;
     }
 
-    public async Task<Venta> ObtenerVentaAsync (int id)
+    public async Task<List<VentaDTORespuesta>> ListarVentasAsync (int usuarioId)
     {
-        Venta? venta = await _sistemaGestionContext.Ventas.FirstOrDefaultAsync(v => v.Id == id);
+        var ventas = await _sistemaGestionContext.Ventas
+                                    .Include(v => v.ProductosVendidos)
+                                    .ThenInclude(pv => pv.Producto)
+                                    .Include(v => v.Usuario)
+                                    .Where(v => v.Usuario.Id == usuarioId)
+                                    .Select(v => new VentaDTORespuesta(v))
+                                    .ToListAsync();
+
+        return ventas;
+    }
+
+    public async Task<Venta> ObtenerVentaAsync (int ventaId, int usuarioId)
+    {
+        Venta? venta = await _sistemaGestionContext.Ventas
+                                    .Include(v => v.ProductosVendidos)
+                                    .ThenInclude(pv => pv.Producto)
+                                    .Include(v => v.Usuario)
+                                    .Where(v => v.Usuario.Id == usuarioId)
+                                    .FirstOrDefaultAsync(v => v.Id == ventaId);
 
         if (venta is null)
         {
@@ -42,20 +62,21 @@ public class VentasDataAccess
         return venta;
     }
 
-    public async Task ModificarVentaAsync (int id, Venta ventaActualizada)
+    public async Task ModificarVentaAsync (
+        int ventaId,
+        int usuarioId,
+        VentaDTO.ComentarioTxt ventaDTO)
     {
-        Venta venta = await ObtenerVentaAsync(id);
+        Venta venta = await ObtenerVentaAsync(ventaId, usuarioId);
 
-        venta.Usuario = ventaActualizada.Usuario;
-        venta.Comentario = ventaActualizada.Comentario;
-        venta.ProductosVendidos = ventaActualizada.ProductosVendidos;
+        venta.Comentario = ventaDTO.Comentario;
 
         await _sistemaGestionContext.SaveChangesAsync();
     }
 
-    public async Task EliminarVentaAsync (int id)
+    public async Task EliminarVentaAsync (int ventaId, int usuarioId)
     {
-        Venta venta = await ObtenerVentaAsync(id);
+        Venta venta = await ObtenerVentaAsync(ventaId, usuarioId);
 
         _sistemaGestionContext.Ventas.Remove(venta);
         await _sistemaGestionContext.SaveChangesAsync();

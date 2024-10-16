@@ -12,4 +12,10 @@ public class VentaDTO
         public int Id { get; set; }
         public int Cantidad { get; set; }
     }
+
+    public class ComentarioTxt
+    {
+        public string Comentario { get; set; } = null!;
+    }
 }
+

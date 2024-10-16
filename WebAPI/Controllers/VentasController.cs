@@ -20,7 +20,7 @@ public class VentasController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Venta>>> ListarVentas ()
+    public async Task<ActionResult<List<VentaDTORespuesta>>> ListarVentas ()
     {
         try
         {
@@ -32,17 +32,30 @@ public class VentasController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Venta>> ObtenerVenta (int id)
+    [HttpGet("usuario/{usuarioId}")]
+    public async Task<ActionResult<List<VentaDTORespuesta>>> ListarVentas (int usuarioId)
     {
-        if (id <= 0)
+        try
+        {
+            return Ok(await _ventaBussiness.ListarVentasAsync(usuarioId));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpGet("usuario/{usuarioId}/venta/{ventaId}")]
+    public async Task<ActionResult<Venta>> ObtenerVenta (int ventaId, int usuarioId)
+    {
+        if (ventaId <= 0 || usuarioId <= 0)
         {
             return BadRequest("Id inválido");
         }
 
         try
         {
-            return Ok(await _ventaBussiness.ObtenerVentaAsync(id));
+            return Ok(await _ventaBussiness.ObtenerVentaAsync(ventaId, usuarioId));
         }
         catch (ArgumentException ex)
         {
@@ -78,17 +91,20 @@ public class VentasController : ControllerBase
         }
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> ModificarVenta (int id, Venta venta)
+    [HttpPut("usuario/{usuarioId}/venta/{ventaId}")]
+    public async Task<ActionResult> ModificarVenta (
+        int ventaId,
+        int usuarioId,
+        VentaDTO.ComentarioTxt ventaDTO)
     {
-        if (id <= 0)
+        if (ventaId <= 0 || usuarioId <= 0)
         {
             return BadRequest("Id inválido");
         }
 
         try
         {
-            await _ventaBussiness.ModificarVentaAsync(id, venta);
+            await _ventaBussiness.ModificarVentaAsync(ventaId, usuarioId, ventaDTO);
 
             return NoContent();
         }
@@ -102,17 +118,17 @@ public class VentasController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> EliminarVenta (int id)
+    [HttpDelete("usuario/{usuarioId}/venta/{ventaId}")]
+    public async Task<ActionResult> EliminarVenta (int ventaId, int usuarioId)
     {
-        if (id <= 0)
+        if (ventaId <= 0 || usuarioId <= 0)
         {
             return BadRequest("Id inválido");
         }
 
         try
         {
-            await _ventaBussiness.EliminarVentaAsync(id);
+            await _ventaBussiness.EliminarVentaAsync(ventaId, usuarioId);
 
             return NoContent();
         }

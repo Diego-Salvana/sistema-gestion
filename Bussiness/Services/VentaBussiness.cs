@@ -24,7 +24,7 @@ public class VentaBussiness
         _productosVendidosDataAccess = productosVendidosDataAccess;
     }
 
-    public async Task<List<Venta>> ListarVentasAsync ()
+    public async Task<List<VentaDTORespuesta>> ListarVentasAsync ()
     {
         try
         {
@@ -36,20 +36,30 @@ public class VentaBussiness
         }
     }
 
-    public async Task<Venta> ObtenerVentaAsync (int id)
+    public async Task<List<VentaDTORespuesta>> ListarVentasAsync (int usuarioId)
     {
-        Venta? venta;
-
         try
         {
-            venta = await _ventasDataAccess.ObtenerVentaAsync(id);
+            return await _ventasDataAccess.ListarVentasAsync(usuarioId);
+        }
+        catch (Exception ex)
+        {
+            throw ErrorHandler.Error(ex, "Ocurrió un error al obtener Ventas");
+        }
+    }
+
+    public async Task<VentaDTORespuesta> ObtenerVentaAsync (int ventaId, int usuarioId)
+    {
+        try
+        {
+            Venta venta = await _ventasDataAccess.ObtenerVentaAsync(ventaId, usuarioId);
+
+            return new VentaDTORespuesta(venta);
         }
         catch (Exception ex)
         {
             throw ErrorHandler.Error(ex, "Ocurrió un error al obtener la Venta");
         }
-
-        return venta;
     }
 
     public async Task CrearVentaAsync (VentaDTO ventaDTO)
@@ -85,8 +95,8 @@ public class VentaBussiness
             foreach (Producto producto in productos)
             {
                 int cantidad = ventaDTO.ProductosDetalle
-                                    .FirstOrDefault(pd => pd.Id == producto.Id)?
-                                    .Cantidad ?? 0;
+                                            .FirstOrDefault(pd => pd.Id == producto.Id)?
+                                            .Cantidad ?? 0;
 
                 producto.Stock -= cantidad;
 
@@ -110,11 +120,14 @@ public class VentaBussiness
         }
     }
 
-    public async Task ModificarVentaAsync (int id, Venta ventaAcutalizada)
+    public async Task ModificarVentaAsync (
+        int ventaId,
+        int usuarioId,
+        VentaDTO.ComentarioTxt ventaDTO)
     {
         try
         {
-            await _ventasDataAccess.ModificarVentaAsync(id, ventaAcutalizada);
+            await _ventasDataAccess.ModificarVentaAsync(ventaId, usuarioId, ventaDTO);
         }
         catch (Exception ex)
         {
@@ -122,11 +135,11 @@ public class VentaBussiness
         }
     }
 
-    public async Task EliminarVentaAsync (int id)
+    public async Task EliminarVentaAsync (int ventaId, int usuarioId)
     {
         try
         {
-            await _ventasDataAccess.EliminarVentaAsync(id);
+            await _ventasDataAccess.EliminarVentaAsync(ventaId, usuarioId);
         }
         catch (Exception ex)
         {
