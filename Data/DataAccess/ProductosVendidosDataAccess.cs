@@ -1,5 +1,6 @@
 ﻿using Data.Context;
 using Entities;
+using Entities.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.DataAccess;
@@ -12,16 +13,33 @@ public class ProductosVendidosDataAccess
         _sistemaGestionContext = context;
     }
 
-    public async Task<List<ProductoVendido>> ListarProductosVendidosAsync ()
+    public async Task<List<ProductoVendidoDTO>> ListarProductosVendidosAsync ()
     {
-        return await _sistemaGestionContext.ProductosVendidos.ToListAsync();
+        return await _sistemaGestionContext.ProductosVendidos
+                                                .Include(pv => pv.Producto)
+                                                .Include(pv => pv.Venta)
+                                                .ThenInclude(v => v.Usuario)
+                                                .Select(pv => new ProductoVendidoDTO(pv))
+                                                .ToListAsync();
+    }
+
+    public async Task<List<ProductoVendidoDTO>> ListarProductosVendidosAsync (int usuarioId)
+    {
+        return await _sistemaGestionContext.ProductosVendidos
+                                                .Include(pv => pv.Producto)
+                                                .Include(pv => pv.Venta)
+                                                .ThenInclude(v => v.Usuario)
+                                                .Where(pv => pv.Venta.Usuario.Id == usuarioId)
+                                                .Select(pv => new ProductoVendidoDTO(pv))
+                                                .ToListAsync();
     }
 
     public async Task<ProductoVendido> ObtenerProductoVendidoAsync (int id)
     {
         ProductoVendido? productoVendido = await _sistemaGestionContext.ProductosVendidos
-                                                        .Include(pv => pv.Venta)
                                                         .Include(pv => pv.Producto)
+                                                        .Include(pv => pv.Venta)
+                                                        .ThenInclude(v => v.Usuario)
                                                         .FirstOrDefaultAsync(pv => pv.Id == id);
 
         if (productoVendido is null)
@@ -40,31 +58,11 @@ public class ProductosVendidosDataAccess
                             .ToListAsync();
     }
 
-    public async Task<List<ProductoVendido>> ObtenerProductosVendidosAsync (List<int> ids)
-    {
-        List<ProductoVendido> productos = await _sistemaGestionContext.ProductosVendidos
-                                                        .Where(pv => ids.Contains(pv.Producto.Id))
-                                                        .ToListAsync();
-
-        return productos;
-    }
-
     public async Task CrearProductoVendidoAsync (ProductoVendido productoVendido)
     {
         productoVendido.Producto.Stock -= productoVendido.Stock;
 
         await _sistemaGestionContext.ProductosVendidos.AddAsync(productoVendido);
-        await _sistemaGestionContext.SaveChangesAsync();
-    }
-
-    public async Task ModificarProductoVendidoAsync (int id, ProductoVendido productoAcutalizado)
-    {
-        ProductoVendido productoVendido = await ObtenerProductoVendidoAsync(id);
-
-        productoVendido.Producto = productoAcutalizado.Producto;
-        productoVendido.Stock = productoAcutalizado.Stock;
-        productoVendido.Venta = productoAcutalizado.Venta;
-
         await _sistemaGestionContext.SaveChangesAsync();
     }
 

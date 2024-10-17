@@ -1,7 +1,6 @@
 ﻿using Bussiness.Services;
-using Entities;
+using Entities.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace WebAPI.Controllers;
 
@@ -19,7 +18,7 @@ public class ProductosVendidosController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<ProductoVendido>>> ListarProductosVendidos ()
+    public async Task<ActionResult<List<ProductoVendidoDTO>>> ListarProductosVendidos ()
     {
         try
         {
@@ -31,8 +30,21 @@ public class ProductosVendidosController : ControllerBase
         }
     }
 
+    [HttpGet("usuario/{usuarioId}")]
+    public async Task<ActionResult<List<ProductoVendidoDTO>>> ListarProductosVendidos (int usuarioId)
+    {
+        try
+        {
+            return Ok(await _productoVendidoBussiness.ListarProductosVendidosAsync(usuarioId));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
     [HttpGet("{id}")]
-    public async Task<ActionResult<ProductoVendido>> ObtenerProductoVendido (int id)
+    public async Task<ActionResult<ProductoVendidoDTO>> ObtenerProductoVendido (int id)
     {
         if (id <= 0)
         {
@@ -42,73 +54,6 @@ public class ProductosVendidosController : ControllerBase
         try
         {
             return Ok(await _productoVendidoBussiness.ObtenerProductoVendidoAsync(id));
-        }
-        catch (ArgumentException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<ProductoVendido>> CrearProductoVendido (ProductoVendido productoVendido)
-    {
-        try
-        {
-            await _productoVendidoBussiness.CrearProductoVendidoAsync(productoVendido);
-
-            return CreatedAtAction(
-                nameof(ObtenerProductoVendido),
-                new { id = productoVendido.Id },
-                productoVendido
-            );
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
-    }
-
-    [HttpPut("{id}")]
-    public async Task<ActionResult> ModificarProductoVendido (int id, ProductoVendido productoVendido)
-    {
-        if (id <= 0)
-        {
-            return BadRequest("Id inválido");
-        }
-
-        try
-        {
-            await _productoVendidoBussiness.ModificarProductoVendidoAsync(id, productoVendido);
-
-            return NoContent();
-        }
-        catch (ArgumentException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> EliminarProductoVendido (int id)
-    {
-        if (id <= 0)
-        {
-            return BadRequest("Id inválido");
-        }
-
-        try
-        {
-            await _productoVendidoBussiness.EliminarProductoVendidoAsync(id);
-
-            return NoContent();
         }
         catch (ArgumentException ex)
         {

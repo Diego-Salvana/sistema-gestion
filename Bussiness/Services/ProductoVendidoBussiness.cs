@@ -1,6 +1,7 @@
 ﻿using Bussiness.Utils;
 using Data.DataAccess;
 using Entities;
+using Entities.DTOs;
 
 namespace Bussiness.Services;
 public class ProductoVendidoBussiness
@@ -12,7 +13,7 @@ public class ProductoVendidoBussiness
         _productosVendidosDataAcces = dataAccess;
     }
 
-    public async Task<List<ProductoVendido>> ListarProductosVendidosAsync ()
+    public async Task<List<ProductoVendidoDTO>> ListarProductosVendidosAsync ()
     {
         try
         {
@@ -24,51 +25,29 @@ public class ProductoVendidoBussiness
         }
     }
 
-    public async Task<ProductoVendido> ObtenerProductoVendidoAsync (int id)
+    public async Task<List<ProductoVendidoDTO>> ListarProductosVendidosAsync (int usuarioId)
     {
         try
         {
-            return await _productosVendidosDataAcces.ObtenerProductoVendidoAsync(id);
+            return await _productosVendidosDataAcces.ListarProductosVendidosAsync(usuarioId);
+        }
+        catch (Exception ex)
+        {
+            throw ErrorHandler.Error(ex, "Ocurrió un error al obtener ProductosVendidos");
+        }
+    }
+
+    public async Task<ProductoVendidoDTO> ObtenerProductoVendidoAsync (int id)
+    {
+        try
+        {
+            ProductoVendido pv = await _productosVendidosDataAcces.ObtenerProductoVendidoAsync(id);
+
+            return new ProductoVendidoDTO(pv);
         }
         catch (Exception ex)
         {
             throw ErrorHandler.Error(ex, "Ocurrió un error al obtener el ProductoVendido");
-        }
-    }
-
-    public async Task CrearProductoVendidoAsync (ProductoVendido productoVendido)
-    {
-        try
-        {
-            await _productosVendidosDataAcces.CrearProductoVendidoAsync(productoVendido);
-        }
-        catch (Exception ex)
-        {
-            throw ErrorHandler.Error(ex, "Ocurrió un error al crear el ProductoVendido");
-        }
-    }
-
-    public async Task ModificarProductoVendidoAsync (int id, ProductoVendido productoAcutalizado)
-    {
-        try
-        {
-            await _productosVendidosDataAcces.ModificarProductoVendidoAsync(id, productoAcutalizado);
-        }
-        catch (Exception ex)
-        {
-            throw ErrorHandler.Error(ex, "Ocurrió un error al modificar el ProductoVendido");
-        }
-    }
-
-    public async Task EliminarProductoVendidoAsync (int id)
-    {
-        try
-        {
-            await _productosVendidosDataAcces.EliminarProductoVendidoAsync(id);
-        }
-        catch (Exception ex)
-        {
-            throw ErrorHandler.Error(ex, "Ocurrió un error al eliminar el ProductoVendido");
         }
     }
 }
