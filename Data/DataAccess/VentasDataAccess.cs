@@ -84,6 +84,11 @@ public class VentasDataAccess
         int usuarioId,
         ProductoVendido productoVendido)
     {
+        if (productoVendido.Producto.Usuario.Id != usuarioId)
+        {
+            throw new ArgumentException($"El producto no corresponde al usuario con Id {usuarioId}");
+        }
+
         Venta venta = await ObtenerVentaAsync(ventaId);
 
         if (venta.Usuario.Id != usuarioId)
@@ -127,7 +132,7 @@ public class VentasDataAccess
     public async Task EliminarVentaAsync (int ventaId, int usuarioId)
     {
         Venta venta = await ObtenerVentaAsync(ventaId);
-        
+
         if (venta.Usuario.Id != usuarioId)
         {
             throw new ArgumentException($"La venta no corresponde al usuario con Id {usuarioId}");

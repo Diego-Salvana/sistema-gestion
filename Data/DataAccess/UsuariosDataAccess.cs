@@ -69,7 +69,9 @@ public class UsuariosDataAccess
 
     public async Task EliminarUsuarioAsync (int id)
     {
-        _sistemaGestionContext.Usuarios.Remove(await ObtenerUsuarioAsync(id));
+        Usuario usuario = await ObtenerUsuarioAsync(id);
+
+        _sistemaGestionContext.Usuarios.Remove(usuario);
         await _sistemaGestionContext.SaveChangesAsync();
     }
 }
