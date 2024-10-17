@@ -68,7 +68,7 @@ public class VentasController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Venta>> CrearVenta (VentaDTO ventaDTO)
+    public async Task<ActionResult<Venta>> CrearVenta ([FromHeader] int usuarioId, VentaDTO ventaDTO)
     {
         if (ventaDTO.ProductosDetalle.IsNullOrEmpty())
         {
@@ -77,11 +77,11 @@ public class VentasController : ControllerBase
 
         try
         {
-            Venta venta = await _ventaBussiness.CrearVentaAsync(ventaDTO);
+            Venta venta = await _ventaBussiness.CrearVentaAsync(usuarioId, ventaDTO);
 
             return CreatedAtAction(
                 nameof(ObtenerVenta),
-                new { ventaId = venta.Id, usuarioId = ventaDTO.UsuarioId },
+                new { ventaId = venta.Id },
                 new VentaDTORespuesta(venta)
             );
         }

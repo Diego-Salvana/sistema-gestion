@@ -1,5 +1,4 @@
 ﻿using Bussiness.Utils;
-using Data.Context;
 using Data.DataAccess;
 using Entities;
 using Entities.DTOs;
@@ -62,13 +61,13 @@ public class VentaBussiness
         }
     }
 
-    public async Task<Venta> CrearVentaAsync (VentaDTO ventaDTO)
+    public async Task<Venta> CrearVentaAsync (int usuarioId, VentaDTO ventaDTO)
     {
         List<int> idsProductos = ventaDTO.ProductosDetalle.Select(pd => pd.Id).ToList();
 
         try
         {
-            Usuario usuario = await _usuariosDataAccess.ObtenerUsuarioAsync(ventaDTO.UsuarioId);
+            Usuario usuario = await _usuariosDataAccess.ObtenerUsuarioAsync(usuarioId);
 
             List<Producto> productos = await _productosDataAccess.ObtenerProductosAsync(idsProductos);
 
