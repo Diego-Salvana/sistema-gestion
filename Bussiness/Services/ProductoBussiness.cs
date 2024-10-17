@@ -36,6 +36,18 @@ public class ProductoBussiness
         }
     }
 
+    public async Task<List<Producto>> ListarProductosAsync (int usuarioId)
+    {
+        try
+        {
+            return await _productosDataAccess.ListarProductosAsync(usuarioId);
+        }
+        catch (Exception ex)
+        {
+            throw ErrorHandler.Error(ex, "Ocurrió error al obtener Productos");
+        }
+    }
+
     public async Task<Producto> ObtenerProductoAsync (int id)
     {
         try
@@ -48,11 +60,11 @@ public class ProductoBussiness
         }
     }
 
-    public async Task CrearProductoAsync (ProductoDTO productoDTO)
+    public async Task CrearProductoAsync (int usuarioId, ProductoDTO productoDTO)
     {
         try
         {
-            Usuario usuario = await _usuariosDataAccess.ObtenerUsuarioAsync(productoDTO.UsuarioId);
+            Usuario usuario = await _usuariosDataAccess.ObtenerUsuarioAsync(usuarioId);
 
             Producto nuevoProducto = new()
             {
@@ -71,22 +83,23 @@ public class ProductoBussiness
         }
     }
 
-    public async Task ModificarProductoAsync (int id, ProductoDTO productoDTO)
+    public async Task ModificarProductoAsync (
+        int productoId,
+        int usuarioId,
+        ProductoDTO productoDTO)
     {
         try
         {
-            Usuario usuario = await _usuariosDataAccess.ObtenerUsuarioAsync(productoDTO.UsuarioId);
-
             Producto productoActualizado = new()
             {
                 Descripcion = productoDTO.Descripcion,
                 Costo = productoDTO.Costo,
                 PrecioVenta = productoDTO.PrecioVenta,
                 Stock = productoDTO.Stock,
-                Usuario = usuario
             };
-
-            await _productosDataAccess.ModificarProductoAsync(id, productoActualizado);
+                
+            await _productosDataAccess
+                        .ModificarProductoAsync(productoId, usuarioId, productoActualizado);
         }
         catch (Exception ex)
         {
@@ -94,14 +107,14 @@ public class ProductoBussiness
         }
     }
 
-    public async Task EliminarProductoAsync (int id)
+    public async Task EliminarProductoAsync (int productoId, int usuarioId)
     {
         try
         {
             List<ProductoVendido> productosVendidos =
-                await _productosVendidosDataAccess.ObtenerProductosVendidosByProductosIdsAsync(id);
+                await _productosVendidosDataAccess.ObtenerProductosVendidosByProductoIdAsync(productoId);
 
-            await _productosDataAccess.EliminarProductoAsync(id);
+            await _productosDataAccess.EliminarProductoAsync(productoId, usuarioId);
         }
         catch (Exception ex)
         {

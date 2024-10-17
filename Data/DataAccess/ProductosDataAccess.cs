@@ -21,6 +21,15 @@ public class ProductosDataAccess
                             .ToListAsync();
     }
 
+    public async Task<List<Producto>> ListarProductosAsync (int usuarioId)
+    {
+        return await _sistemaGestionContext.Productos
+                            .Include(p => p.Usuario)
+                            .Where(p => p.Usuario.Id == usuarioId)
+                            .Select(p => ProductoDTORespuesta.Crear(p))
+                            .ToListAsync();
+    }
+
     public async Task<Producto> ObtenerProductoAsync (int id)
     {
         Producto? producto = await _sistemaGestionContext.Productos
@@ -52,15 +61,22 @@ public class ProductosDataAccess
         await _sistemaGestionContext.SaveChangesAsync();
     }
 
-    public async Task ModificarProductoAsync (int id, Producto productoActualizado)
+    public async Task ModificarProductoAsync (
+        int productoId,
+        int usuarioId,
+        Producto productoActualizado)
     {
-        Producto producto = await ObtenerProductoAsync(id);
+        Producto producto = await ObtenerProductoAsync(productoId);
+
+        if (producto.Usuario.Id != usuarioId)
+        {
+            throw new ArgumentException($"El producto no corresponde al usuario con id {usuarioId}");
+        }
 
         producto.Descripcion = productoActualizado.Descripcion;
         producto.Costo = productoActualizado.Costo;
         producto.PrecioVenta = productoActualizado.PrecioVenta;
         producto.Stock = productoActualizado.Stock;
-        producto.Usuario = productoActualizado.Usuario;
 
         await _sistemaGestionContext.SaveChangesAsync();
     }
@@ -70,9 +86,14 @@ public class ProductosDataAccess
         await _sistemaGestionContext.SaveChangesAsync();
     }
 
-    public async Task EliminarProductoAsync (int id)
+    public async Task EliminarProductoAsync (int productoId, int usuarioId)
     {
-        Producto producto = await ObtenerProductoAsync(id);
+        Producto producto = await ObtenerProductoAsync(productoId);
+
+        if (producto.Usuario.Id != usuarioId)
+        {
+            throw new ArgumentException($"El producto no corresponde al usuario con id {usuarioId}");
+        }
 
         _sistemaGestionContext.Productos.Remove(producto);
         await _sistemaGestionContext.SaveChangesAsync();

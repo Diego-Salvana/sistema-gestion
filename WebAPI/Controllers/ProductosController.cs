@@ -12,7 +12,9 @@ public class ProductosController : ControllerBase
     private readonly ILogger<ProductosController> _logger;
     private readonly ProductoBussiness _productoBussiness;
 
-    public ProductosController (ILogger<ProductosController> logger, ProductoBussiness productoBussiness)
+    public ProductosController (
+        ILogger<ProductosController> logger,
+        ProductoBussiness productoBussiness)
     {
         _logger = logger;
         _productoBussiness = productoBussiness;
@@ -24,6 +26,19 @@ public class ProductosController : ControllerBase
         try
         {
             return Ok(await _productoBussiness.ListarProductosAsync());
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpGet("usuario/{usuarioId}")]
+    public async Task<ActionResult<List<Producto>>> ListarProductos (int usuarioId)
+    {
+        try
+        {
+            return Ok(await _productoBussiness.ListarProductosAsync(usuarioId));
         }
         catch (Exception ex)
         {
@@ -54,15 +69,17 @@ public class ProductosController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Producto>> CrearProducto (ProductoDTO productoDTO)
+    public async Task<ActionResult<Producto>> CrearProducto (
+        [FromHeader] int usuarioId,
+        ProductoDTO productoDTO)
     {
         try
         {
-            await _productoBussiness.CrearProductoAsync(productoDTO);
+            await _productoBussiness.CrearProductoAsync(usuarioId, productoDTO);
 
             return CreatedAtAction(
                 nameof(ObtenerProducto),
-                new { id = productoDTO.UsuarioId },
+                new { id = usuarioId },
                 productoDTO
             );
         }
@@ -72,17 +89,20 @@ public class ProductosController : ControllerBase
         }
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> ModificarProducto (int id, ProductoDTO productoDTO)
+    [HttpPut("{productoId}")]
+    public async Task<ActionResult> ModificarProducto (
+        int productoId,
+        [FromHeader] int usuarioId,
+        ProductoDTO productoDTO)
     {
-        if (id <= 0)
+        if (productoId <= 0)
         {
             return BadRequest("Id inválido");
         }
 
         try
         {
-            await _productoBussiness.ModificarProductoAsync(id, productoDTO);
+            await _productoBussiness.ModificarProductoAsync(productoId, usuarioId, productoDTO);
 
             return NoContent();
         }
@@ -96,17 +116,17 @@ public class ProductosController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> EliminarProducto (int id)
+    [HttpDelete("{productoId}")]
+    public async Task<ActionResult> EliminarProducto (int productoId, [FromHeader] int usuarioId)
     {
-        if (id <= 0)
+        if (productoId <= 0)
         {
             return BadRequest("Id inválido");
         }
 
         try
         {
-            await _productoBussiness.EliminarProductoAsync(id);
+            await _productoBussiness.EliminarProductoAsync(productoId, usuarioId);
 
             return NoContent();
         }

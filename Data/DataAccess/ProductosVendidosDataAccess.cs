@@ -32,7 +32,7 @@ public class ProductosVendidosDataAccess
         return productoVendido;
     }
 
-    public async Task<List<ProductoVendido>> ObtenerProductosVendidosByProductosIdsAsync (int productoId)
+    public async Task<List<ProductoVendido>> ObtenerProductosVendidosByProductoIdAsync (int productoId)
     {
         return await _sistemaGestionContext.ProductosVendidos
                             .Include(pv => pv.Venta)
