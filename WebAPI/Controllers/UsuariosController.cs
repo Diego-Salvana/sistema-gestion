@@ -1,5 +1,6 @@
 ﻿using Bussiness.Services;
 using Entities;
+using Entities.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -53,7 +54,7 @@ public class UsuariosController : ControllerBase
         }
     }
 
-    [HttpPost()]
+    [HttpPost("registrar")]
     public async Task<ActionResult<Usuario>> CrearUsuario (Usuario usuario)
     {
         try
@@ -65,6 +66,25 @@ public class UsuariosController : ControllerBase
                 new { id = nuevoUsuario.Id },
                 nuevoUsuario
             );
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpPost("ingresar")]
+    public async Task<ActionResult<Usuario>> Ingresar (IngresoDTO usuario)
+    {
+        try
+        {
+            Usuario usuarioResp = await _usuarioBussiness.Ingresar(usuario);
+
+            return Ok(usuarioResp);
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ex.Message);
         }
         catch (Exception ex)
         {

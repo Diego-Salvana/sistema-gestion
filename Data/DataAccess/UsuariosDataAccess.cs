@@ -40,10 +40,17 @@ public class UsuariosDataAccess
         return usuario;
     }
 
-    public async Task<Usuario?> ObtenerUsuarioByEmail (string mail)
+    public async Task<Usuario?> ObtenerUsuarioByNombreUsuario (string nombreUsuario)
     {
         return await _sistemaGestionContext.Usuarios
-                            .FirstOrDefaultAsync(u => u.Mail == mail);
+                            .FirstOrDefaultAsync(u => u.NombreUsuario == nombreUsuario);
+    }
+
+    public async Task<List<Usuario>> ObtenerUsuarioByNombreUsuarioOrEmail (Usuario usuario)
+    {
+        return await _sistemaGestionContext.Usuarios
+                            .Where(u => u.NombreUsuario == usuario.NombreUsuario || u.Mail == usuario.Mail)
+                            .ToListAsync();
     }
 
     public async Task<Usuario> CrearUsuarioAsync (Usuario usuario)

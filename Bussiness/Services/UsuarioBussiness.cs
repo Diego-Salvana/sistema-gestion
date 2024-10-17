@@ -1,6 +1,9 @@
 ﻿using Bussiness.Utils;
 using Data.DataAccess;
 using Entities;
+using Entities.DTOs;
+using Microsoft.IdentityModel.Tokens;
+using System.Net.Http.Headers;
 
 namespace Bussiness.Services;
 public class UsuarioBussiness
@@ -44,12 +47,25 @@ public class UsuarioBussiness
     {
         try
         {
-            Usuario? usuarioExistente = 
-                await _usuariosDataAccess.ObtenerUsuarioByEmail(usuario.Mail);
+            List<Usuario> usuariosExistentes =
+                await _usuariosDataAccess.ObtenerUsuarioByNombreUsuarioOrEmail(usuario);
 
-            if (usuarioExistente is not null)
+            if (!usuariosExistentes.IsNullOrEmpty())
             {
-                throw new ArgumentException("El email ya está en uso");
+                Usuario? usuarioByNombreUsuario =
+                    usuariosExistentes.FirstOrDefault(u => u.NombreUsuario == usuario.NombreUsuario);
+                
+                if (usuarioByNombreUsuario is not null)
+                {
+                    throw new ArgumentException("El nombre de usuario ya está en uso");
+                }
+
+                Usuario? usuarioByEmail = usuariosExistentes.FirstOrDefault(u => u.Mail == usuario.Mail);
+
+                if (usuarioByEmail is not null)
+                {
+                    throw new ArgumentException("El email ya está en uso");
+                }
             }
 
             Usuario nuevoUsuario = await _usuariosDataAccess.CrearUsuarioAsync(usuario);
@@ -61,6 +77,30 @@ public class UsuarioBussiness
         catch (Exception ex)
         {
             throw ErrorHandler.Error(ex, "Ocurrió un error al crear el usuario");
+        }
+    }
+
+    public async Task<Usuario> Ingresar (IngresoDTO usuario)
+    {
+        try
+        {
+            Usuario usuarioExistente =
+                await _usuariosDataAccess.ObtenerUsuarioByNombreUsuario(usuario.NombreUsuario) ??
+                throw new ArgumentException(
+                    $"No se encontró el usuario {usuario.NombreUsuario}");
+
+            if (usuario.Contraseña != usuarioExistente.Contraseña)
+            {
+                throw new ArgumentException("Contraseña incorrecta");
+            }
+
+            usuarioExistente.Contraseña = string.Empty;
+
+            return usuarioExistente;
+        }
+        catch (Exception ex)
+        {
+            throw ErrorHandler.Error(ex, "Ocurrió un error al modificar el usuario");
         }
     }
 
