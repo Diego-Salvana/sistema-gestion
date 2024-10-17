@@ -48,11 +48,11 @@ public class VentaBussiness
         }
     }
 
-    public async Task<VentaDTORespuesta> ObtenerVentaAsync (int ventaId, int usuarioId)
+    public async Task<VentaDTORespuesta> ObtenerVentaAsync (int ventaId)
     {
         try
         {
-            Venta venta = await _ventasDataAccess.ObtenerVentaAsync(ventaId, usuarioId);
+            Venta venta = await _ventasDataAccess.ObtenerVentaAsync(ventaId);
 
             return new VentaDTORespuesta(venta);
         }
@@ -62,7 +62,7 @@ public class VentaBussiness
         }
     }
 
-    public async Task CrearVentaAsync (VentaDTO ventaDTO)
+    public async Task<Venta> CrearVentaAsync (VentaDTO ventaDTO)
     {
         List<int> idsProductos = ventaDTO.ProductosDetalle.Select(pd => pd.Id).ToList();
 
@@ -98,8 +98,6 @@ public class VentaBussiness
                                             .FirstOrDefault(pd => pd.Id == producto.Id)?
                                             .Cantidad ?? 0;
 
-                producto.Stock -= cantidad;
-
                 ProductoVendido productoVendido = new()
                 {
                     Producto = producto,
@@ -113,6 +111,8 @@ public class VentaBussiness
             }
 
             await _productosDataAccess.ModificarProductosAsync();
+
+            return nuevaVenta;
         }
         catch (Exception ex)
         {
@@ -132,6 +132,56 @@ public class VentaBussiness
         catch (Exception ex)
         {
             throw ErrorHandler.Error(ex, "Ocurrió un error al modificar la Venta");
+        }
+    }
+
+    public async Task AgregarProductoAsync (
+        int ventaId,
+        int usuarioId,
+        VentaDTO.DetalleProducto detalleProducto)
+    {
+        try
+        {
+            Producto producto =
+                await _productosDataAccess.ObtenerProductoAsync(detalleProducto.Id) ??
+                throw new Exception($"Producto con Id {detalleProducto.Id} no encontrado.");
+
+            if (producto.Stock < detalleProducto.Cantidad || producto.Stock < 1)
+            {
+                throw new Exception($"Sin stock para el producto: {producto.Descripcion}");
+            }
+
+            int cantidad = detalleProducto?.Cantidad ?? 0;
+
+            ProductoVendido productoVendido = new()
+            {
+                Producto = producto,
+                Stock = cantidad,
+            };
+
+            await _ventasDataAccess.AgregarProducto(ventaId, usuarioId, productoVendido);
+        }
+        catch (Exception ex)
+        {
+            throw ErrorHandler.Error(ex, "Ocurrió un error al eliminar la Venta");
+        }
+    }
+
+    public async Task QuitarProductoAsync (
+        int ventaId,
+        int usuarioId,
+        int productoVendidoId)
+    {
+        try
+        {
+            ProductoVendido pv =
+                await _productosVendidosDataAccess.ObtenerProductoVendidoAsync(productoVendidoId);
+
+            await _ventasDataAccess.QuitarProducto(ventaId, usuarioId, pv);
+        }
+        catch (Exception ex)
+        {
+            throw ErrorHandler.Error(ex, "Ocurrió un error al eliminar la Venta");
         }
     }
 

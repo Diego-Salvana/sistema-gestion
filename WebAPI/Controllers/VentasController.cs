@@ -45,17 +45,17 @@ public class VentasController : ControllerBase
         }
     }
 
-    [HttpGet("usuario/{usuarioId}/venta/{ventaId}")]
-    public async Task<ActionResult<Venta>> ObtenerVenta (int ventaId, int usuarioId)
+    [HttpGet("{ventaId}")]
+    public async Task<ActionResult<Venta>> ObtenerVenta (int ventaId)
     {
-        if (ventaId <= 0 || usuarioId <= 0)
+        if (ventaId <= 0)
         {
             return BadRequest("Id inválido");
         }
 
         try
         {
-            return Ok(await _ventaBussiness.ObtenerVentaAsync(ventaId, usuarioId));
+            return Ok(await _ventaBussiness.ObtenerVentaAsync(ventaId));
         }
         catch (ArgumentException ex)
         {
@@ -77,9 +77,13 @@ public class VentasController : ControllerBase
 
         try
         {
-            await _ventaBussiness.CrearVentaAsync(ventaDTO);
+            Venta venta = await _ventaBussiness.CrearVentaAsync(ventaDTO);
 
-            return CreatedAtAction(nameof(ObtenerVenta), new { id = ventaDTO.UsuarioId }, ventaDTO);
+            return CreatedAtAction(
+                nameof(ObtenerVenta),
+                new { ventaId = venta.Id, usuarioId = ventaDTO.UsuarioId },
+                new VentaDTORespuesta(venta)
+            );
         }
         catch (ArgumentException ex)
         {
@@ -91,13 +95,13 @@ public class VentasController : ControllerBase
         }
     }
 
-    [HttpPut("usuario/{usuarioId}/venta/{ventaId}")]
+    [HttpPut("{ventaId}/comentario")]
     public async Task<ActionResult> ModificarVenta (
         int ventaId,
-        int usuarioId,
+        [FromHeader] int usuarioId,
         VentaDTO.ComentarioTxt ventaDTO)
     {
-        if (ventaId <= 0 || usuarioId <= 0)
+        if (ventaId <= 0)
         {
             return BadRequest("Id inválido");
         }
@@ -118,10 +122,64 @@ public class VentasController : ControllerBase
         }
     }
 
-    [HttpDelete("usuario/{usuarioId}/venta/{ventaId}")]
-    public async Task<ActionResult> EliminarVenta (int ventaId, int usuarioId)
+    [HttpPut("{ventaId}/agregarProducto")]
+    public async Task<ActionResult> AgregarProductoAsync (
+        int ventaId,
+        [FromHeader] int usuarioId,
+        VentaDTO.DetalleProducto detalleProducto)
     {
-        if (ventaId <= 0 || usuarioId <= 0)
+        if (ventaId <= 0)
+        {
+            return BadRequest("Id inválido");
+        }
+
+        try
+        {
+            await _ventaBussiness.AgregarProductoAsync(ventaId, usuarioId, detalleProducto);
+
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpPut("{ventaId}/quitarProducto/{productoId}")]
+    public async Task<ActionResult> QuitarProductoAsync (
+        int ventaId,
+        [FromHeader] int usuarioId,
+        int productoId)
+    {
+        if (ventaId <= 0)
+        {
+            return BadRequest("Id inválido");
+        }
+
+        try
+        {
+            await _ventaBussiness.QuitarProductoAsync(ventaId, usuarioId, productoId);
+
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpDelete("{ventaId}")]
+    public async Task<ActionResult> EliminarVenta (int ventaId, [FromHeader] int usuarioId)
+    {
+        if (ventaId <= 0)
         {
             return BadRequest("Id inválido");
         }

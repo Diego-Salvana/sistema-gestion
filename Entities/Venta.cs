@@ -11,12 +11,4 @@ public class Venta
     public List<ProductoVendido> ProductosVendidos { get; set; } = [];
 
     public Usuario Usuario { get; set; } = null!;
-
-    public void AgregarComentario (string comentario)
-    {
-        //if (comentario.Trim().Length > 0)
-        //{
-        //    Comentarios.Add(comentario);
-        //}
-    }
 }

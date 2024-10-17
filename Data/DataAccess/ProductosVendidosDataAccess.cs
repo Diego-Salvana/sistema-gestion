@@ -19,8 +19,10 @@ public class ProductosVendidosDataAccess
 
     public async Task<ProductoVendido> ObtenerProductoVendidoAsync (int id)
     {
-        ProductoVendido? productoVendido =
-            await _sistemaGestionContext.ProductosVendidos.FirstOrDefaultAsync(pv => pv.Id == id);
+        ProductoVendido? productoVendido = await _sistemaGestionContext.ProductosVendidos
+                                                        .Include(pv => pv.Venta)
+                                                        .Include(pv => pv.Producto)
+                                                        .FirstOrDefaultAsync(pv => pv.Id == id);
 
         if (productoVendido is null)
         {
@@ -49,6 +51,8 @@ public class ProductosVendidosDataAccess
 
     public async Task CrearProductoVendidoAsync (ProductoVendido productoVendido)
     {
+        productoVendido.Producto.Stock -= productoVendido.Stock;
+
         await _sistemaGestionContext.ProductosVendidos.AddAsync(productoVendido);
         await _sistemaGestionContext.SaveChangesAsync();
     }
