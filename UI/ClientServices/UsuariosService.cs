@@ -1,4 +1,5 @@
 ﻿using Entities;
+using Entities.DTOs;
 
 namespace UI.ClientServices;
 public class UsuariosService
@@ -23,6 +24,23 @@ public class UsuariosService
     public async Task CrearUsuarioAsync (Usuario usuario)
     {
         await _httpClient.PostAsJsonAsync("", usuario);
+    }
+
+    public async Task<Usuario> IniciarSesion (IngresoDTO usuarioData)
+    {
+        var respuesta = await _httpClient.PostAsJsonAsync("ingresar", usuarioData);
+
+        if (respuesta.IsSuccessStatusCode)
+        {
+            Usuario? usuario = await respuesta.Content.ReadFromJsonAsync<Usuario>();
+
+            return usuario!;
+        }
+        else
+        {
+            var errorMessage = await respuesta.Content.ReadAsStringAsync();
+            throw new Exception($"Error al iniciar sesión: {errorMessage}");
+        }
     }
 
     public async Task ModificarUsuarioAsync (int id, Usuario usuarioAcutalizado)

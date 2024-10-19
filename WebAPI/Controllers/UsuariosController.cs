@@ -2,7 +2,6 @@
 using Entities;
 using Entities.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace WebAPI.Controllers;
 

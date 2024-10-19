@@ -8,7 +8,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddTransient<ProductosService>();
-builder.Services.AddTransient<UsuariosService>();
+builder.Services.AddSingleton<UsuariosService>();
 builder.Services.AddTransient<ProductosVendidosService>();
 builder.Services.AddTransient<VentasService>();
 

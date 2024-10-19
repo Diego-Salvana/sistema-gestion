@@ -1,0 +1,46 @@
+﻿@using Entities.DTOs
+@inject NavigationManager NavigationManager
+@inject UsuariosService UsuariosService
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<EditForm Model="usuarioData" OnValidSubmit="IniciarSesionAsync" FormName="inicio-sesion">
+    <DataAnnotationsValidator />
+
+    <div class="form-group pb-2">
+        <label for="nombre-usuario">Nombre Usuario</label>
+        <InputText type="text" class="form-control" id="nombre-usuario" @bind-Value="usuarioData.NombreUsuario" />
+        <ValidationMessage For="() => usuarioData.NombreUsuario" />
+    </div>
+
+    <div class="form-group pb-2">
+        <label for="password">Contraseña</label>
+        <InputText type="password" class="form-control" id="password" @bind-Value="usuarioData.Contraseña" />
+        <ValidationMessage For="() => usuarioData.Contraseña" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-1">Ingresar</button>
+</EditForm>
+
+@code {
+    public IngresoDTO usuarioData { get; set; } = new IngresoDTO()
+        {
+            NombreUsuario = string.Empty,
+            Contraseña = string.Empty
+        };
+
+    private async Task IniciarSesionAsync ()
+    {
+        try
+        {
+            await UsuariosService.IniciarSesion(usuarioData);
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("logErrorConsole", $"{ex.Message}");
+            return;
+        }
+
+        NavigationManager.NavigateTo("/productos");
+    }
+}

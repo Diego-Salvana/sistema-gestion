@@ -36,8 +36,6 @@
 
     private async Task GuardarVentaAsync ()
     {
-        venta.AgregarComentario(comentario);
-
         try
         {
             if (venta.Id == 0) await VentasService.CrearVentaAsync(venta);

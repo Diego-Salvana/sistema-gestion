@@ -16,8 +16,9 @@
     <Routes />
     <script src="_framework/blazor.web.js"></script>
     <script>
-        window.logErrorConsole = (message) => {
-            console.error("Error: " + message)
+        window.logErrorConsole = (mensaje) => {
+            console.error(mensaje);
+            window.alert(mensaje);
         }
     </script>
 </body>
