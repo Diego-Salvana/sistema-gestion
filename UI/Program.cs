@@ -1,3 +1,4 @@
+using UI;
 using UI.ClientServices;
 using UI.Components;
 
@@ -11,6 +12,9 @@ builder.Services.AddTransient<ProductosService>();
 builder.Services.AddSingleton<UsuariosService>();
 builder.Services.AddTransient<ProductosVendidosService>();
 builder.Services.AddTransient<VentasService>();
+builder.Services.AddTransient<NombreAPIService>();
+
+builder.Services.AddSingleton<InicioRegistro>();
 
 builder.Services.AddHttpClient<ProductosService>(
     client => client.BaseAddress = new Uri("http://localhost:5292/api/Productos/")
@@ -23,6 +27,9 @@ builder.Services.AddHttpClient<ProductosVendidosService>(
 );
 builder.Services.AddHttpClient<VentasService>(
     client => client.BaseAddress = new Uri("http://localhost:5292/api/Ventas/")
+);
+builder.Services.AddHttpClient<NombreAPIService>(
+    client => client.BaseAddress = new Uri("http://localhost:5292/api/NombreAPI/")
 );
 
 var app = builder.Build();

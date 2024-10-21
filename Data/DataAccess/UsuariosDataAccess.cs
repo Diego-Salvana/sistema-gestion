@@ -61,7 +61,7 @@ public class UsuariosDataAccess
         return usuario;
     }
 
-    public async Task ModificarUsuarioAsync (int id, Usuario usuarioAcutalizado)
+    public async Task<Usuario> ModificarUsuarioAsync (int id, Usuario usuarioAcutalizado)
     {
         Usuario usuario = await ObtenerUsuarioAsync(id);
 
@@ -72,6 +72,8 @@ public class UsuariosDataAccess
         usuario.Mail = usuarioAcutalizado.Mail;
 
         await _sistemaGestionContext.SaveChangesAsync();
+
+        return usuario;
     }
 
     public async Task EliminarUsuarioAsync (int id)

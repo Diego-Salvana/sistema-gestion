@@ -1,15 +1,14 @@
 ﻿@page "/registro"
 @rendermode InteractiveServer
-@inject IJSRuntime JS
 
 <PageTitle>Resgistro</PageTitle>
 
-<div class="container">
-    <h2 class="pb-3">Registrarse</h2>
+<div class="container" style="max-width: 720px">
+    <h3 class="mb-3">Registrarse</h3>
+
+    <UsuarioForm usuario="nuevoUsuario"></UsuarioForm>
 </div>
 
-@* TODO: formulario registro *@
-
 @code {
-
+    private Usuario nuevoUsuario = new();
 }

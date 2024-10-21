@@ -1,0 +1,16 @@
+﻿@page "/"
+@inject NombreAPIService NombreAPIService
+
+<PageTitle>Sistema Gestión</PageTitle>
+
+<h1 class="text-center">@NombreAPI</h1>
+<p class="text-center">Proyecto final del curso de C#.</p>
+
+@code {
+    private string NombreAPI { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync ()
+    {
+        NombreAPI = await NombreAPIService.ObtenerNombreAPI();
+    }
+}

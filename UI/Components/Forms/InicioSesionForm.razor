@@ -1,6 +1,6 @@
 ﻿@using Entities.DTOs
 @inject NavigationManager NavigationManager
-@inject UsuariosService UsuariosService
+@inject InicioRegistro InicioRegistro
 @inject IJSRuntime JS
 @rendermode InteractiveServer
 
@@ -33,7 +33,7 @@
     {
         try
         {
-            await UsuariosService.IniciarSesion(usuarioData);
+            await InicioRegistro.IniciarSesionAsync(usuarioData);
         }
         catch (Exception ex)
         {

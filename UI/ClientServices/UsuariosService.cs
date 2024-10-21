@@ -21,9 +21,21 @@ public class UsuariosService
         return await _httpClient.GetFromJsonAsync<Usuario>($"{id}");
     }
 
-    public async Task CrearUsuarioAsync (Usuario usuario)
+    public async Task<Usuario> CrearUsuarioAsync (Usuario nuevoUsuario)
     {
-        await _httpClient.PostAsJsonAsync("", usuario);
+        var respuesta = await _httpClient.PostAsJsonAsync("registrar", nuevoUsuario);
+
+        if (respuesta.IsSuccessStatusCode)
+        {
+            Usuario? usuario = await respuesta.Content.ReadFromJsonAsync<Usuario>();
+
+            return usuario!;
+        }
+        else
+        {
+            var errorMessage = await respuesta.Content.ReadAsStringAsync();
+            throw new Exception($"Error al crear usuario: {errorMessage}");
+        }
     }
 
     public async Task<Usuario> IniciarSesion (IngresoDTO usuarioData)
@@ -43,9 +55,21 @@ public class UsuariosService
         }
     }
 
-    public async Task ModificarUsuarioAsync (int id, Usuario usuarioAcutalizado)
+    public async Task<Usuario> ModificarUsuarioAsync (int id, Usuario usuarioAcutalizado)
     {
-        await _httpClient.PutAsJsonAsync($"{id}", usuarioAcutalizado);
+        var respuesta = await _httpClient.PutAsJsonAsync($"{id}", usuarioAcutalizado);
+
+        if (respuesta.IsSuccessStatusCode)
+        {
+            Usuario? usuario = await respuesta.Content.ReadFromJsonAsync<Usuario>();
+
+            return usuario!;
+        }
+        else
+        {
+            var errorMessage = await respuesta.Content.ReadAsStringAsync();
+            throw new Exception($"Error al modificar usuario: {errorMessage}");
+        }
     }
 
     public async Task EliminarUsuarioAsync (int id)

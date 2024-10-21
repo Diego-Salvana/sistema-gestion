@@ -16,6 +16,6 @@ public class NombreAPIController : ControllerBase
     [HttpGet]
     public ActionResult<string> ObtenerNombreAPI ()
     {
-        return "Sistema Gestión DS";
+        return Ok("Sistema Gestión DS");
     }
 }

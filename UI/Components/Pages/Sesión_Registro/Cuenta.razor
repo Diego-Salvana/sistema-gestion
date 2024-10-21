@@ -1,0 +1,78 @@
+﻿@page "/usuarios/{id:int}/editar"
+@inject UsuariosService UsuariosService
+@inject InicioRegistro InicioRegistro
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<PageTitle>Cuenta</PageTitle>
+
+<div class="container" style="max-width: 720px">
+    <h3 class="mb-3">Editar Perfil Usuario</h3>
+
+    @if (usuario is null)
+    {
+        <h5 class="pt-5">Usuario no encontrado</h5>
+    }
+    else
+    {
+        <UsuarioForm usuario="usuario"></UsuarioForm>
+
+        <div style="background-color: gray; height: 1px; margin-top: 2rem"></div>
+
+        <div class="text-center mt-5">
+            <button @onclick="CerrarSesion" class="btn btn-secondary px-5">Cerrar Sesión</button>
+        </div>
+
+        <div class="text-center mt-5">
+            <button @onclick="async () => await BorrarUsuario()" class="btn btn-danger px-5">
+                Borrar Cuenta
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    private Usuario? usuario;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync ()
+    {
+        try
+        {
+            usuario = await UsuariosService.ObtenerUsuarioAsync(Id);
+        }
+        catch (Exception)
+        {
+            usuario = null;
+        }
+    }
+
+    private void CerrarSesion ()
+    {
+        InicioRegistro.CerrarSesión();
+        NavigationManager.NavigateTo("/inicio");
+    }
+
+    private async Task BorrarUsuario ()
+    {
+        if (usuario is null)
+        {
+            await JS.InvokeVoidAsync("logErrorConsole", "Usuario no encontrado");
+            return;
+        }
+
+        try
+        {
+            await InicioRegistro.EliminarUsuario(usuario.Id);
+            NavigationManager.NavigateTo("/inicio");
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("logErrorConsole", $"{ex.Message}");
+            return;
+        }
+    }
+}

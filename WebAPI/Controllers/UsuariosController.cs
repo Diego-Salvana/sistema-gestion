@@ -92,7 +92,7 @@ public class UsuariosController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> ModificarUsuario (int id, Usuario usuario)
+    public async Task<ActionResult<Usuario>> ModificarUsuario (int id, Usuario usuarioModificado)
     {
         if (id <= 0)
         {
@@ -101,9 +101,9 @@ public class UsuariosController : ControllerBase
 
         try
         {
-            await _usuarioBussiness.ModificarUsuarioAsync(id, usuario);
+            Usuario usuario = await _usuarioBussiness.ModificarUsuarioAsync(id, usuarioModificado);
 
-            return NoContent();
+            return Ok(usuario);
         }
         catch (ArgumentException ex)
         {

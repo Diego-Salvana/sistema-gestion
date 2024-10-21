@@ -3,7 +3,6 @@ using Data.DataAccess;
 using Entities;
 using Entities.DTOs;
 using Microsoft.IdentityModel.Tokens;
-using System.Net.Http.Headers;
 
 namespace Bussiness.Services;
 public class UsuarioBussiness
@@ -33,8 +32,6 @@ public class UsuarioBussiness
         {
             Usuario usuario = await _usuariosDataAccess.ObtenerUsuarioAsync(id);
 
-            usuario.Contraseña = string.Empty;
-
             return usuario;
         }
         catch (Exception ex)
@@ -54,7 +51,7 @@ public class UsuarioBussiness
             {
                 Usuario? usuarioByNombreUsuario =
                     usuariosExistentes.FirstOrDefault(u => u.NombreUsuario == usuario.NombreUsuario);
-                
+
                 if (usuarioByNombreUsuario is not null)
                 {
                     throw new ArgumentException("El nombre de usuario ya está en uso");
@@ -104,11 +101,15 @@ public class UsuarioBussiness
         }
     }
 
-    public async Task ModificarUsuarioAsync (int id, Usuario usuarioAcutalizado)
+    public async Task<Usuario> ModificarUsuarioAsync (int id, Usuario usuarioAcutalizado)
     {
         try
         {
-            await _usuariosDataAccess.ModificarUsuarioAsync(id, usuarioAcutalizado);
+            Usuario usuario = await _usuariosDataAccess.ModificarUsuarioAsync(id, usuarioAcutalizado);
+
+            usuario.Contraseña = string.Empty;
+
+            return usuario;
         }
         catch (Exception ex)
         {

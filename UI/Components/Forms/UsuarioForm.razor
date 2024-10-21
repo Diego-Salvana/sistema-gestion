@@ -1,5 +1,6 @@
 ﻿@inject NavigationManager NavigationManager
 @inject UsuariosService UsuariosService
+@inject InicioRegistro InicioRegistro
 @inject IJSRuntime JS
 @rendermode InteractiveServer
 
@@ -43,15 +44,15 @@
     {
         try
         {
-            if (usuario.Id == 0) await UsuariosService.CrearUsuarioAsync(usuario);
-            else await UsuariosService.ModificarUsuarioAsync(usuario.Id, usuario);
+            if (usuario.Id == 0) await InicioRegistro.RegistrarUsuarioAsync(usuario);
+            else await InicioRegistro.ModificarUsuarioAsync(usuario.Id, usuario);
         }
         catch (Exception ex)
         {
-            await JS.InvokeVoidAsync("logErrorConsole", "No se pudo modificar/crear el usuario");
+            await JS.InvokeVoidAsync("logErrorConsole", $"{ex.Message}");
             return;
         }
 
-        NavigationManager.NavigateTo("/usuarios");
+        NavigationManager.NavigateTo("/productos");
     }
 }
