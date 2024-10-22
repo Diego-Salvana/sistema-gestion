@@ -25,6 +25,13 @@
 
     protected override async Task OnInitializedAsync ()
     {
-        producto = await ProductosService.ObtenerProductoAsync(Id);
+        try
+        {
+            producto = await ProductosService.ObtenerProductoAsync(Id);
+        }
+        catch (Exception)
+        {
+            producto = null;
+        }
     }
 }

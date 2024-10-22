@@ -8,7 +8,7 @@ public class Producto
 
     [Required(ErrorMessage = "El campo Descripción es requerido.")]
     [MaxLength(250, ErrorMessage = "La Descripción no puede tener más de 250 caracteres.")]
-    [MinLength(5, ErrorMessage = "La Descripción debe tener al menos 5 caracteres.")]
+    [MinLength(2, ErrorMessage = "La Descripción debe tener al menos 2 caracteres.")]
     public string Descripcion { get; set; } = null!;
 
     [Required(ErrorMessage = "El campo Costo es requerido.")]

@@ -1,7 +1,8 @@
 ﻿@page "/productos"
-@rendermode InteractiveServer
 @inject ProductosService ProductosService
+@inject InicioRegistro InicioRegistro
 @inject IJSRuntime JS
+@rendermode InteractiveServer
 
 <PageTitle>Productos</PageTitle>
 
@@ -24,7 +25,6 @@
                     <th>Costo</th>
                     <th>PrecioVenta</th>
                     <th>Stock</th>
-                    <th>IdUsuario </th>
                     <th></th>
                 </tr>
             </thead>
@@ -37,7 +37,6 @@
                         <td>@producto.Costo</td>
                         <td>@producto.PrecioVenta</td>
                         <td>@producto.Stock</td>
-                        <td>@producto.Usuario</td>
                         <td class="text-end">
                             <a href="/Productos/@producto.Id/editar" class="pe-1">
                                 <button type="button" class="btn btn-info">Editar</button>
@@ -60,7 +59,7 @@
 
     protected override async Task OnInitializedAsync ()
     {
-        productos = await ProductosService.ListarProductosAsync() ?? [];
+        productos = await ProductosService.ListarProductosAsync(InicioRegistro.UsuarioActual?.Id ?? 0) ?? [];
     }
 
     private async Task RemoverProductoAsync (int id)
