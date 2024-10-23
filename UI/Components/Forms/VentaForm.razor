@@ -6,47 +6,228 @@
 <EditForm Model="venta" OnValidSubmit="GuardarVentaAsync" FormName="venta-form">
     <DataAnnotationsValidator></DataAnnotationsValidator>
 
-    <div class="form-group pb-2">
-        <label for="comentario">Nuevo Comentario</label>
-        <InputTextArea type="text" class="form-control" id="comentario"
-                       @bind-Value="comentario" />
-    </div>
-    <div class="form-group pb-2">
-        <label for="id-usuario">IdUsuario</label>
-        <InputNumber type="number" class="form-control" id="id-usuario"
-                     @bind-Value="venta.Usuario" />
-        <ValidationMessage For="() => venta.Usuario" />
+    <div class="border-bottom border-secondary mt-4 pb-3">
+        <table>
+            <thead>
+                <tr>
+                    @if (venta.Id == 0)
+                    {
+                        <th>Id Producto</th>
+                    }
+                    else
+                    {
+                        <th>Producto</th>
+                    }
+                    <th class="px-5">Cantidad</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (venta.Id == 0)
+                {
+                    @foreach (VentaDTO.DetalleProducto detalleProducto in _detalleProductos)
+                    {
+                        <tr>
+                            <td class="text-center">@detalleProducto.Id</td>
+                            <td class="text-center">@detalleProducto.Cantidad</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                        @onclick="() => QuitarProducto(detalleProducto)">
+                                    Quitar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    @foreach (ProductoVendido productoVendido in venta.ProductosVendidos)
+                    {
+                        <tr>
+                            <td>@productoVendido.Producto.Descripcion</td>
+                            <td class="text-center">@productoVendido.Stock</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                        @onclick="async () => await QuitarProductoAsync(productoVendido)">
+                                    Quitar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
     </div>
 
-    <button type="submit" class="btn btn-primary mt-1">Guardar</button>
+    <div class="row g-3 mt-2 pb-2">
+        <div class="col-auto">
+            <label for="producto-id">Id Producto</label>
+            <input type="number" class="form-control" id="producto-id" placeholder="Producto Id"
+                   @bind-value="_productoId" />
+        </div>
+        <div class="col-auto">
+            <label for="cantidad">Cantidad</label>
+            <input type="number" class="form-control" id="cantidad" placeholder="Cantidad"
+                   @bind-value="_cantidad" />
+        </div>
+        <div class="col-auto d-flex align-items-end">
+            <button type="button" class="btn btn-success" @onclick="async () => await AgregarProductoVendido()">
+                Agregar Producto
+            </button>
+        </div>
+    </div>
+
+    <div class="form-group mt-3 pb-2">
+        <label for="comentario">Comentario</label>
+        <InputTextArea type="text" class="form-control" id="comentario"
+                       @bind-Value="_comentario" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Guardar</button>
 </EditForm>
 
 @code {
     [Parameter]
-    public Venta venta { get; set; } = null!;
-
-    private int idUsuarioActual;
-
-    private string comentario = string.Empty;
+    public VentaDTORespuesta venta { get; set; } = null!;
+    private string _comentario = string.Empty;
+    private int _productoId;
+    private int _cantidad;
+    private List<VentaDTO.DetalleProducto> _detalleProductos = [];
 
     protected override void OnInitialized ()
     {
-        idUsuarioActual = venta.Usuario.Id;
+        _comentario = venta.Comentario;
     }
 
     private async Task GuardarVentaAsync ()
     {
-        try
+        if (venta.Id == 0)
         {
-            if (venta.Id == 0) await VentasService.CrearVentaAsync(venta);
-            else await VentasService.ModificarVentaAsync(venta.Id, venta);
+            await CrearVentaAsync();
         }
-        catch (Exception)
+        else
         {
-            await JS.InvokeVoidAsync("logErrorConsole", "No se pudo modificar/crear la venta");
+            await ModificarComentario();
+        }
+    }
+
+    private async Task AgregarProductoVendido ()
+    {
+        if (venta.Id == 0)
+        {
+            await AgregarProducto();
+        }
+        else
+        {
+            await AgregarProductoAsync();
+        }
+    }
+
+    private async Task AgregarProducto ()
+    {
+        if (_productoId < 1 || _cantidad < 1) return;
+
+        VentaDTO.DetalleProducto? productoExistente = _detalleProductos.FirstOrDefault(p => p.Id == _productoId);
+
+        if (productoExistente is not null)
+        {
+            await JS.InvokeVoidAsync("logErrorConsole", "El producto ya se encuentra en la lista");
             return;
         }
 
+        VentaDTO.DetalleProducto detalleProducto = new()
+            {
+                Id = _productoId,
+                Cantidad = _cantidad
+            };
+
+        _detalleProductos.Add(detalleProducto);
+    }
+
+    private void QuitarProducto (VentaDTO.DetalleProducto detalleProducto)
+    {
+        _detalleProductos.Remove(detalleProducto);
+    }
+
+    private async Task CrearVentaAsync ()
+    {
+        VentaDTO ventaDTO = new()
+            {
+                Comentario = _comentario,
+                ProductosDetalle = _detalleProductos
+            };
+
+        try
+        {
+            await VentasService.CrearVentaAsync(ventaDTO);
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("logErrorConsole", $"{ex.Message}");
+            return;
+        }
+
+        NavigationManager.NavigateTo("/ventas");
+    }
+
+    private async Task AgregarProductoAsync ()
+    {
+        if (_productoId < 1 || _cantidad < 1) return;
+
+        VentaDTO.DetalleProducto detalleProducto = new()
+            {
+                Id = _productoId,
+                Cantidad = _cantidad
+            };
+
+        try
+        {
+            Producto productoAgregado = await VentasService.AgregarProductoAsync(venta.Id, detalleProducto);
+
+            VentaDTORespuesta? ventaActualizada = await VentasService.ObtenerVentaAsync(venta.Id);
+
+            if (ventaActualizada is not null) venta = ventaActualizada;
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("logErrorConsole", $"{ex.Message}");
+            return;
+        }
+    }
+
+    private async Task QuitarProductoAsync (ProductoVendido productoVendido)
+    {
+        try
+        {
+            await VentasService.QuitarProductoAsync(venta.Id, productoVendido.Id);
+
+            VentaDTORespuesta? ventaActualizada = await VentasService.ObtenerVentaAsync(venta.Id);
+
+            if (ventaActualizada is not null) venta = ventaActualizada;
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("logErrorConsole", $"{ex.Message}");
+            return;
+        }
+    }
+
+    private async Task ModificarComentario ()
+    {
+        VentaDTO.ComentarioTxt comentarioTxt = new()
+            {
+                Comentario = _comentario
+            };
+
+        try
+        {
+            await VentasService.ModificarVentaAsync(venta.Id, comentarioTxt);
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("logErrorConsole", $"{ex.Message}");
+            return;
+        }
 
         NavigationManager.NavigateTo("/ventas");
     }

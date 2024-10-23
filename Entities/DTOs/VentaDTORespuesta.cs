@@ -2,22 +2,23 @@
 public class VentaDTORespuesta
 {
     public int Id { get; set; }
-    public string Comentario { get; set; }
-    public List<Producto> Productos { get; set; }
-    public Usuario Usuario { get; set; }
+    public string Comentario { get; set; } = null!;
+    public List<ProductoVendido> ProductosVendidos { get; set; } = null!;
+    public Usuario Usuario { get; set; } = null!;
+
+    public VentaDTORespuesta () { }
 
     public VentaDTORespuesta (Venta venta)
     {
         Id = venta.Id;
         Comentario = venta.Comentario;
-        Productos = venta.ProductosVendidos.Select(pv => new Producto()
+        ProductosVendidos = venta.ProductosVendidos.Select(pv => new ProductoVendido()
         {
-            Id = pv.Producto.Id,
-            Descripcion = pv.Producto.Descripcion,
-            Costo = pv.Producto.Costo,
-            PrecioVenta = pv.Producto.PrecioVenta,
-            Stock = pv.Producto.Stock,
-        }).ToList();
+            Id = pv.Id,
+            Producto = pv.Producto,
+            Stock = pv.Stock
+        })
+        .ToList();
         Usuario = venta.Usuario;
 
         Usuario.Contraseña = string.Empty;

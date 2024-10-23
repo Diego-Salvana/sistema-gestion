@@ -46,7 +46,7 @@ public class VentasController : ControllerBase
     }
 
     [HttpGet("{ventaId}")]
-    public async Task<ActionResult<Venta>> ObtenerVenta (int ventaId)
+    public async Task<ActionResult<VentaDTORespuesta>> ObtenerVenta (int ventaId)
     {
         if (ventaId <= 0)
         {
@@ -68,7 +68,9 @@ public class VentasController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Venta>> CrearVenta ([FromHeader] int usuarioId, VentaDTO ventaDTO)
+    public async Task<ActionResult<VentaDTORespuesta>> CrearVenta (
+        [FromHeader] int usuarioId,
+        VentaDTO ventaDTO)
     {
         if (ventaDTO.ProductosDetalle.IsNullOrEmpty())
         {
@@ -123,7 +125,7 @@ public class VentasController : ControllerBase
     }
 
     [HttpPut("{ventaId}/agregarProducto")]
-    public async Task<ActionResult> AgregarProductoAsync (
+    public async Task<ActionResult<Producto>> AgregarProductoAsync (
         int ventaId,
         [FromHeader] int usuarioId,
         VentaDTO.DetalleProducto detalleProducto)
@@ -135,9 +137,7 @@ public class VentasController : ControllerBase
 
         try
         {
-            await _ventaBussiness.AgregarProductoAsync(ventaId, usuarioId, detalleProducto);
-
-            return NoContent();
+            return Ok(await _ventaBussiness.AgregarProductoAsync(ventaId, usuarioId, detalleProducto));
         }
         catch (ArgumentException ex)
         {
@@ -149,11 +149,11 @@ public class VentasController : ControllerBase
         }
     }
 
-    [HttpPut("{ventaId}/quitarProducto/{productoId}")]
+    [HttpDelete("{ventaId}/quitarProducto/{productoVendidoId}")]
     public async Task<ActionResult> QuitarProductoAsync (
         int ventaId,
         [FromHeader] int usuarioId,
-        int productoId)
+        int productoVendidoId)
     {
         if (ventaId <= 0)
         {
@@ -162,7 +162,7 @@ public class VentasController : ControllerBase
 
         try
         {
-            await _ventaBussiness.QuitarProductoAsync(ventaId, usuarioId, productoId);
+            await _ventaBussiness.QuitarProductoAsync(ventaId, usuarioId, productoVendidoId);
 
             return NoContent();
         }

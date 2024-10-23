@@ -1,7 +1,8 @@
 ﻿@page "/ventas"
-@rendermode InteractiveServer
 @inject VentasService VentasService
+@inject InicioRegistro InicioRegistro
 @inject IJSRuntime JS
+@rendermode InteractiveServer
 
 <PageTitle>Ventas</PageTitle>
 
@@ -20,23 +21,25 @@
             <thead class="thead-dark">
                 <tr>
                     <th>Id</th>
-                    <th>Comentarios</th>
-                    <th>IdUsuario</th>
+                    <th>Productos</th>
+                    <th>Comentario</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (Venta venta in ventas)
+                @foreach (VentaDTORespuesta venta in ventas)
                 {
                     <tr>
                         <td>@venta.Id</td>
                         <td>
-                            @* @foreach (string comentario in @venta.Comentarios)
-                            {
-                                <p>@comentario</p>
-                            } *@
+                            <ul>
+                                @foreach (ProductoVendido pv in venta.ProductosVendidos)
+                                {
+                                    <li>@pv.Producto.Descripcion</li>
+                                }
+                            </ul>
                         </td>
-                        <td>@venta.Usuario</td>
+                        <td>@venta.Comentario</td>
                         <td class="text-end">
                             <a href="/ventas/@venta.Id/editar" class="pe-1">
                                 <button type="button" class="btn btn-info">Editar</button>
@@ -55,11 +58,11 @@
 </div>
 
 @code {
-    private List<Venta> ventas = [];
+    private List<VentaDTORespuesta> ventas = [];
 
     protected override async Task OnInitializedAsync ()
     {
-        ventas = await VentasService.ListarVentasAsync() ?? [];
+        ventas = await VentasService.ListarVentasAsync(InicioRegistro.UsuarioActual?.Id ?? 0) ?? [];
     }
 
     private async Task RemoverVentaAsync (int id)
@@ -74,7 +77,7 @@
             return;
         }
 
-        Venta? ventaAEliminar = ventas.FirstOrDefault(v => v.Id == id);
+        VentaDTORespuesta? ventaAEliminar = ventas.FirstOrDefault(v => v.Id == id);
         if (ventaAEliminar is not null) ventas.Remove(ventaAEliminar);
     }
 }

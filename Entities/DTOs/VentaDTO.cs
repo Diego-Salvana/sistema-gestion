@@ -16,4 +16,3 @@ public class VentaDTO
         public string Comentario { get; set; } = null!;
     }
 }
-

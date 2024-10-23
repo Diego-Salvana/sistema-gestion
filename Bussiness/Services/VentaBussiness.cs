@@ -134,7 +134,7 @@ public class VentaBussiness
         }
     }
 
-    public async Task AgregarProductoAsync (
+    public async Task<Producto> AgregarProductoAsync (
         int ventaId,
         int usuarioId,
         VentaDTO.DetalleProducto detalleProducto)
@@ -159,6 +159,8 @@ public class VentaBussiness
             };
 
             await _ventasDataAccess.AgregarProducto(ventaId, usuarioId, productoVendido);
+
+            return producto;
         }
         catch (Exception ex)
         {

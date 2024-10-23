@@ -5,7 +5,7 @@
 <PageTitle>Ventas</PageTitle>
 
 <div class="container" style="max-width: 720px">
-    <h3 class="mb-3">Ventas</h3>
+    <h3 class="mb-3">Editar Venta</h3>
 
     @if (venta is null)
     {
@@ -18,13 +18,20 @@
 </div>
 
 @code {
-    private Venta? venta;
+    private VentaDTORespuesta? venta;
 
     [Parameter]
     public int Id { get; set; }
 
     protected override async Task OnInitializedAsync ()
     {
-        venta = await VentasService.ObtenerVentaAsync(Id);
+        try
+        {
+            venta = await VentasService.ObtenerVentaAsync(Id);
+        }
+        catch (Exception)
+        {
+            venta = null;
+        }
     }
 }

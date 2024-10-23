@@ -96,11 +96,26 @@ public class VentasDataAccess
             throw new ArgumentException($"La venta no corresponde al usuario con Id {usuarioId}");
         }
 
-        productoVendido.Venta = venta;
-        productoVendido.Producto.Stock -= productoVendido.Stock;
-        await _sistemaGestionContext.ProductosVendidos.AddAsync(productoVendido);
+        ProductoVendido? productoVendidoExistente =
+            venta.ProductosVendidos.FirstOrDefault(pv => pv.Producto.Id == productoVendido.Producto.Id);
 
-        venta.ProductosVendidos.Add(productoVendido);
+        if (productoVendidoExistente is not null)
+        {
+            ProductoVendido pv = await _sistemaGestionContext.ProductosVendidos
+                                                .FirstOrDefaultAsync(pv => pv.Id == productoVendidoExistente.Id)
+                                                ?? new ProductoVendido() { };
+
+            pv.Stock += productoVendido.Stock;
+        }
+        else
+        {
+            productoVendido.Venta = venta;
+
+            await _sistemaGestionContext.ProductosVendidos.AddAsync(productoVendido);
+            venta.ProductosVendidos.Add(productoVendido);
+        }
+        
+        productoVendido.Producto.Stock -= productoVendido.Stock;
 
         await _sistemaGestionContext.SaveChangesAsync();
     }
