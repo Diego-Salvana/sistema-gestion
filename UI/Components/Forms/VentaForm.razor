@@ -80,7 +80,8 @@
     <div class="form-group mt-3 pb-2">
         <label for="comentario">Comentario</label>
         <InputTextArea type="text" class="form-control" id="comentario"
-                       @bind-Value="_comentario" />
+                       @bind-Value="venta.Comentario" />
+        <ValidationMessage For="() => venta.Comentario" />
     </div>
 
     <button type="submit" class="btn btn-primary mt-3">Guardar</button>
@@ -89,14 +90,14 @@
 @code {
     [Parameter]
     public VentaDTORespuesta venta { get; set; } = null!;
-    private string _comentario = string.Empty;
+    // private string _comentario = string.Empty;
     private int _productoId;
     private int _cantidad;
     private List<VentaDTO.DetalleProducto> _detalleProductos = [];
 
     protected override void OnInitialized ()
     {
-        _comentario = venta.Comentario;
+        // _comentario = venta.Comentario;
     }
 
     private async Task GuardarVentaAsync ()
@@ -153,7 +154,7 @@
     {
         VentaDTO ventaDTO = new()
             {
-                Comentario = _comentario,
+                Comentario = venta.Comentario,
                 ProductosDetalle = _detalleProductos
             };
 
@@ -216,7 +217,7 @@
     {
         VentaDTO.ComentarioTxt comentarioTxt = new()
             {
-                Comentario = _comentario
+                Comentario = venta.Comentario
             };
 
         try

@@ -7,15 +7,7 @@ public class InicioRegistro
 {
     private readonly UsuariosService _usuariosService;
 
-    public Usuario? UsuarioActual { get; private set; } = new Usuario()
-    {
-        Id = 8,
-        Nombre = "User",
-        Apellido = "string",
-        NombreUsuario = "string",
-        Contraseña = "string",
-        Mail = "user@example.com"
-    };
+    public Usuario? UsuarioActual { get; private set; }
 
     public event Action? RefrescarUsuario;
 

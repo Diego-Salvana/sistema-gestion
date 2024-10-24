@@ -1,5 +1,6 @@
 ﻿@page "/productos-vendidos"
 @inject ProductosVendidosService ProductosVendidosService
+@inject InicioRegistro InicioRegistro
 @inject IJSRuntime JS
 @rendermode InteractiveServer
 
@@ -9,41 +10,23 @@
     <h1 class="pb-3">Productos Vendidos</h1>
 
     <div class="row">
-        <div class="col-6">
-            <a href="/productos-vendidos/nuevo">
-                <button type="button" class="btn btn-success">Crear ProductoVendido</button>
-            </a>
-        </div>
-    </div>
-    <div class="row">
         <table class="table">
             <thead class="thead-dark">
                 <tr>
                     <th>Id</th>
-                    <th>IdProducto</th>
-                    <th>Stock</th>
-                    <th>IdVenta</th>
-                    <th></th>
+                    <th>Producto</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-center">IdVenta</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (ProductoVendido productoVendido in productosVendidos)
+                @foreach (ProductoVendidoDTO productoVendido in productosVendidos)
                 {
                     <tr>
                         <td>@productoVendido.Id</td>
-                        <td>@productoVendido.Producto</td>
-                        <td>@productoVendido.Stock</td>
-                        <td>@productoVendido.Venta</td>
-                        <td class="text-end">
-                            <a href="/productos-vendidos/@productoVendido.Id/editar" class="pe-1">
-                                <button type="button" class="btn btn-info">Editar</button>
-                            </a>
-                            <button type="button"
-                                    class="btn btn-danger"
-                                    @onclick="() => RemoverProductoVendidoAsync(productoVendido.Id)">
-                                Eliminar
-                            </button>
-                        </td>
+                        <td>@productoVendido.Producto.Descripcion</td>
+                        <td class="text-center">@productoVendido.Stock</td>
+                        <td class="text-center">@productoVendido.Venta.Id</td>
                     </tr>
                 }
             </tbody>
@@ -52,26 +35,11 @@
 </div>
 
 @code {
-    private List<ProductoVendido> productosVendidos = [];
+    private List<ProductoVendidoDTO> productosVendidos = [];
 
     protected override async Task OnInitializedAsync ()
     {
-        productosVendidos = await ProductosVendidosService.ListarProductosVendidosAsync() ?? [];
-    }
-
-    private async Task RemoverProductoVendidoAsync (int id)
-    {
-        try
-        {
-            await ProductosVendidosService.EliminarProductoVendidoAsync(id);
-        }
-        catch (Exception)
-        {
-            await JS.InvokeVoidAsync("logErrorConsole", "No se pudo eliminar el producto vendido");
-            return;
-        }
-
-        ProductoVendido? productoVendidoAEliminar = productosVendidos.FirstOrDefault(p => p.Id == id);
-        if (productoVendidoAEliminar is not null) productosVendidos.Remove(productoVendidoAEliminar);
+        productosVendidos = await ProductosVendidosService
+                                        .ListarProductosVendidosAsync(InicioRegistro.UsuarioActual?.Id ?? 0) ?? [];
     }
 }

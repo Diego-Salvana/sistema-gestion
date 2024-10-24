@@ -49,6 +49,7 @@ public class ProductosDataAccess
     public async Task<List<Producto>> ObtenerProductosAsync (List<int> ids)
     {
         List<Producto> productos = await _sistemaGestionContext.Productos
+                                                .Include(p => p.Usuario)
                                                 .Where(p => ids.Contains(p.Id))
                                                 .ToListAsync();
 

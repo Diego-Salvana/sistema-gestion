@@ -71,14 +71,20 @@ public class VentaBussiness
 
             List<Producto> productos = await _productosDataAccess.ObtenerProductosAsync(idsProductos);
 
-            foreach (var idProducto in ventaDTO.ProductosDetalle)
+            foreach (var productoDetalle in ventaDTO.ProductosDetalle)
             {
-                Producto producto = productos.FirstOrDefault(p => p.Id == idProducto.Id) ??
-                     throw new Exception($"Producto con Id {idProducto.Id} no encontrado.");
+                Producto producto = productos.FirstOrDefault(p => p.Id == productoDetalle.Id) ??
+                     throw new Exception($"Producto con Id {productoDetalle.Id} no encontrado.");
 
-                if (producto.Stock < idProducto.Cantidad || producto.Stock < 1)
+                if (producto.Usuario.Id != usuarioId)
                 {
-                    throw new Exception($"Sin stock para el producto: {producto.Descripcion}");
+                    throw new Exception($"El producto con " +
+                        $"Id {productoDetalle.Id} no corresponde al usuario Id {usuarioId}.");
+                }
+
+                if (producto.Stock < productoDetalle.Cantidad || producto.Stock < 1)
+                {
+                    throw new Exception($"Sin stock para el producto {producto.Descripcion}");
                 }
             }
 
@@ -143,11 +149,11 @@ public class VentaBussiness
         {
             Producto producto =
                 await _productosDataAccess.ObtenerProductoAsync(detalleProducto.Id) ??
-                throw new Exception($"Producto con Id {detalleProducto.Id} no encontrado.");
+                throw new ArgumentException($"Producto con Id {detalleProducto.Id} no encontrado.");
 
             if (producto.Stock < detalleProducto.Cantidad || producto.Stock < 1)
             {
-                throw new Exception($"Sin stock para el producto: {producto.Descripcion}");
+                throw new ArgumentException($"Sin stock para el producto {producto.Descripcion}");
             }
 
             int cantidad = detalleProducto?.Cantidad ?? 0;
@@ -164,7 +170,7 @@ public class VentaBussiness
         }
         catch (Exception ex)
         {
-            throw ErrorHandler.Error(ex, "Ocurrió un error al eliminar la Venta");
+            throw ErrorHandler.Error(ex, "Ocurrió un error al agregar producto a la Venta");
         }
     }
 
@@ -182,7 +188,7 @@ public class VentaBussiness
         }
         catch (Exception ex)
         {
-            throw ErrorHandler.Error(ex, "Ocurrió un error al eliminar la Venta");
+            throw ErrorHandler.Error(ex, "Ocurrió un error al quitar producto de la Venta");
         }
     }
 

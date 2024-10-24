@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Remove="DTOs\VentaDTO.cs~RF9097bf7e.TMP" />
+    <None Remove="DTOs\VentaDTORespuesta.cs~RFd37dbb05.TMP" />
     <None Remove="Venta.cs~RF77715f11.TMP" />
   </ItemGroup>
 

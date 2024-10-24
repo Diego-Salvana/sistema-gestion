@@ -1,7 +1,11 @@
-﻿namespace Entities.DTOs;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Entities.DTOs;
 public class VentaDTORespuesta
 {
     public int Id { get; set; }
+    
+    [Required]
     public string Comentario { get; set; } = null!;
     public List<ProductoVendido> ProductosVendidos { get; set; } = null!;
     public Usuario Usuario { get; set; } = null!;
